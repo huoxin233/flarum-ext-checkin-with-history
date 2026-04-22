@@ -33,6 +33,7 @@
         },
         "flarum-cli": {
             "modules": {
+                "githubActions": true,
                 "gitConf": true
             }
         }
