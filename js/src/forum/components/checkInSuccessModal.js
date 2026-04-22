@@ -1,6 +1,4 @@
-import Modal from 'flarum/components/Modal';
-import Button from 'flarum/components/Button';
-import Stream from 'flarum/utils/Stream';
+import Modal from 'flarum/common/components/Modal';
 
 export default class checkInResultModal extends Modal {
   oninit(vnode) {

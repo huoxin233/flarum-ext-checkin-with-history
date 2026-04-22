@@ -1,4 +1,4 @@
-import {extend, override} from 'flarum/extend';
+import app from 'flarum/admin/app';
 
 app.initializers.add('ziven-checkin', () => {
   app.extensionData

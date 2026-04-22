@@ -1,7 +1,7 @@
-import { extend } from 'flarum/extend';
+import { extend } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
 import IndexPage from 'flarum/forum/components/IndexPage';
-import Button from 'flarum/components/Button';
+import Button from 'flarum/common/components/Button';
 import Alert from 'flarum/common/components/Alert';
 import checkInSuccessModal from './components/checkInSuccessModal';
 import checkInFailedModal from './components/checkInFailedModal';
