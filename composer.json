@@ -30,6 +30,11 @@
                 "backgroundColor": "#238c59",
                 "color": "#fff"
             }
+        },
+        "flarum-cli": {
+            "modules": {
+                "gitConf": true
+            }
         }
     }
 }
