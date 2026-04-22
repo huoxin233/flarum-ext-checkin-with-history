@@ -6,6 +6,8 @@ ziven-checkin:
     check-in-success: 签到成功
     check-in-failed: 签到失败
     try-again-later: 请稍后再试
+    money-history:
+      checkin-reward: 每日签到奖励
   admin:
     settings:
       auto-check-in: 自动签到

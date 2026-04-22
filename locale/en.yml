@@ -6,6 +6,8 @@ ziven-checkin:
     check-in-success: Checked In Success
     check-in-failed: Checked In Failed
     try-again-later: Please try again later
+    money-history:
+      checkin-reward: Daily check-in reward
   admin:
     settings:
       auto-check-in: Auto check in

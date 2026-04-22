@@ -1,12 +1,12 @@
 <?php
 
 use Flarum\Extend;
-use Flarum\User\Event\Saving;
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
+use Flarum\User\User;
 use Ziven\checkin\AddAttribute\AddUserCheckinAttributes;
-use Ziven\checkin\Listeners\doCheckin;
 use Ziven\checkin\Access\UserPolicy;
+use Ziven\checkin\Api\Controller\CheckInController;
 
 $extend = [
     (new Extend\Frontend('admin'))->js(__DIR__.'/js/dist/admin.js'),
@@ -16,7 +16,9 @@ $extend = [
 
     (new Extend\Policy())->modelPolicy(User::class, UserPolicy::class),
 
-    (new Extend\Event())->listen(Saving::class, [doCheckin::class, 'checkinSaved']),
+    (new Extend\Routes('api'))
+        ->post('/checkin', 'ziven-checkin.check-in', CheckInController::class),
+
     (new Extend\ApiSerializer(UserSerializer::class))->attributes(AddUserCheckinAttributes::class),
     (new Extend\Settings())
         ->serializeToForum('forumCheckinRewarMoney', 'ziven-forum-checkin.checkinRewardMoney',function ($raw) {
