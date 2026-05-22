@@ -10,7 +10,7 @@ use Flarum\User\User;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\ConnectionInterface;
 use Ziven\checkin\Support\CheckInStateResolver;
-use AntoineFr\Money\Service\BalanceManager;
+use Huoxin\MoneyWithHistory\Service\BalanceManager;
 use Illuminate\Contracts\Events\Dispatcher;
 use Ziven\checkin\Event\checkinUpdated;
 
@@ -91,7 +91,10 @@ class CheckInService
     private function shouldApplyReward(float $reward): bool
     {
         return $reward !== 0.0
-            && $this->extensions->isEnabled('antoinefr-money');
+            && (
+                $this->extensions->isEnabled('antoinefr-money')
+                || $this->extensions->isEnabled('huoxin-money-with-history')
+            );
     }
 
     private function validationException(string $messageKey): ValidationException

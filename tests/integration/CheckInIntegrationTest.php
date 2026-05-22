@@ -20,8 +20,7 @@ class CheckInIntegrationTest extends TestCase
         CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-04-11 12:00:00', 'UTC'));
 
         $this->extension('ziiven-daily-check-in');
-        $this->extension('antoinefr-money');
-        $this->extension('mattoid-money-history');
+        $this->extension('huoxin-money-with-history');
 
         $this->prepareDatabase([
             'users' => [
@@ -128,7 +127,7 @@ class CheckInIntegrationTest extends TestCase
         $this->assertEquals(5.5, (float) $user->money);
         $this->assertNotNull($historyEntry);
         $this->assertSame('DAILY_CHECKIN_REWARD', $historyEntry->source);
-        $this->assertSame('ziven-checkin.forum.money-history.checkin-reward', $historyEntry->source_key);
+        $this->assertSame('ziven-checkin.forum.history.checkin-reward', $historyEntry->source_key);
         $this->assertEquals(0.0, (float) $historyEntry->balance_before);
         $this->assertEquals(5.5, (float) $historyEntry->balance_after);
     }
