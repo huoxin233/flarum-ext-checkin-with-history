@@ -24,7 +24,7 @@ function showCheckInSuccessPrompt() {
   const forumCheckinSuccessPromptText = app.forum.attribute('forumCheckinSuccessPromptText');
   const forumCheckinSuccessPromptRewardText = app.forum.attribute('forumCheckinSuccessPromptRewardText');
   const forumCheckinSuccessPromptType = app.forum.attribute('forumCheckinSuccessPromptType');
-  const forumCheckinRewarMoney = app.forum.attribute('forumCheckinRewarMoney');
+  const forumCheckinRewardMoney = app.forum.attribute('forumCheckinRewardMoney');
   const moneyExtensionExist = app.forum.attribute('antoinefr-money.moneyname') !== undefined;
 
   if (forumCheckinSuccessPromptText === '' && forumCheckinSuccessPromptRewardText === '') {
@@ -43,7 +43,7 @@ function showCheckInSuccessPrompt() {
 
   if (moneyExtensionExist === true && forumCheckinSuccessPromptRewardText !== '') {
     const moneyName = app.forum.attribute('antoinefr-money.moneyname') || '[money]';
-    const rewardText = moneyName.replace('[money]', forumCheckinRewarMoney);
+    const rewardText = moneyName.replace('[money]', forumCheckinRewardMoney);
     const checkInSuccessRewardText = forumCheckinSuccessPromptRewardText.replace('[reward]', rewardText);
 
     app.alerts.show(Alert, { type: 'success' }, checkInSuccessRewardText);

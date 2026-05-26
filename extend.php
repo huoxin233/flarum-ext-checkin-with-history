@@ -21,7 +21,7 @@ $extend = [
 
     (new Extend\ApiSerializer(UserSerializer::class))->attributes(AddUserCheckinAttributes::class),
     (new Extend\Settings())
-        ->serializeToForum('forumCheckinRewarMoney', 'ziven-forum-checkin.checkinRewardMoney',function ($raw) {
+        ->serializeToForum('forumCheckinRewardMoney', 'ziven-forum-checkin.checkinRewardMoney',function ($raw) {
             return (float)$raw;
         })
         ->serializeToForum('forumAutoCheckin', 'ziven-forum-checkin.autoCheckIn', 'intval', 0)

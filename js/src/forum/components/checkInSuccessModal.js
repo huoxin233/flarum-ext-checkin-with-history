@@ -18,7 +18,7 @@ export default class checkInResultModal extends Modal {
     const totalContinuousCheckIn = app.session.user.attribute("totalContinuousCheckIn");
     const forumCheckinSuccessPromptText = app.forum.attribute("forumCheckinSuccessPromptText");
     const forumCheckinSuccessPromptRewardText = app.forum.attribute("forumCheckinSuccessPromptRewardText");
-    const forumCheckinRewarMoney = app.forum.attribute("forumCheckinRewarMoney");
+    const forumCheckinRewardMoney = app.forum.attribute("forumCheckinRewardMoney");
     const moneyExtensionExist = app.forum.attribute('antoinefr-money.moneyname')!==undefined;
 
     let moneyName = "";
@@ -32,7 +32,7 @@ export default class checkInResultModal extends Modal {
 
     if(moneyExtensionExist===true && forumCheckinSuccessPromptRewardText!==""){
       moneyName = app.forum.attribute('antoinefr-money.moneyname') || '[money]';
-      rewardText = moneyName.replace('[money]', forumCheckinRewarMoney);
+      rewardText = moneyName.replace('[money]', forumCheckinRewardMoney);
       rewardTextClassName = "checkInResultModal rewardText";
     }
 
