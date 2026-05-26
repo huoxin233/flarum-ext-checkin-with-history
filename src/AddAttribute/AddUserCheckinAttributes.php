@@ -17,15 +17,20 @@ class AddUserCheckinAttributes
 
     public function __invoke(UserSerializer $serializer, User $user)
     {
-        $state = $this->stateResolver->getCheckInState($user);
-
-        return [
+        $attributes = [
             'lastCheckinTime' => $user->last_checkin_time,
             'totalContinuousCheckIn' => (int) $user->total_continuous_checkin_count,
-            'checkInCompatibleExtensions' => $this->compatibleExtensions(),
-            'canCheckin' => $state['canCheckin'],
-            'canCheckinContinuous' => $state['canCheckinContinuous'],
         ];
+
+        if ($serializer->getActor()->id === $user->id) {
+            $state = $this->stateResolver->getCheckInState($user);
+
+            $attributes['checkInCompatibleExtensions'] = $this->compatibleExtensions();
+            $attributes['canCheckin'] = $state['canCheckin'];
+            $attributes['canCheckinContinuous'] = $state['canCheckinContinuous'];
+        }
+
+        return $attributes;
     }
 
     private function compatibleExtensions(): array
