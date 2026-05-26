@@ -7,7 +7,7 @@ app.initializers.add('ziven-checkin', () => {
       return (
         <div className="Form-group">
           <label>{app.translator.trans('ziven-checkin.admin.settings.reward-money')}</label>
-          <div class="helpText">{app.translator.trans('ziven-checkin.admin.settings.reward-money-requirement')}</div>
+          <div className="helpText">{app.translator.trans('ziven-checkin.admin.settings.reward-money-requirement')}</div>
           <input type="number" className="FormControl" step="any" bidi={this.setting('ziven-forum-checkin.checkinRewardMoney')} />
         </div>
       );
@@ -41,8 +41,8 @@ app.initializers.add('ziven-checkin', () => {
       return (
         <div className="Form-group">
           <label>{app.translator.trans('ziven-checkin.admin.settings.check-in-success-prompt-text')}</label>
-          <div class="helpText">{app.translator.trans('ziven-checkin.admin.settings.check-in-success-prompt-example-text')}</div>
-          <input type="string" className="FormControl" step="any" bidi={this.setting('ziven-forum-checkin.checkinSuccessPromptText')} />
+          <div className="helpText">{app.translator.trans('ziven-checkin.admin.settings.check-in-success-prompt-example-text')}</div>
+          <input type="text" className="FormControl" bidi={this.setting('ziven-forum-checkin.checkinSuccessPromptText')} />
         </div>
       );
     })
@@ -50,9 +50,9 @@ app.initializers.add('ziven-checkin', () => {
       return (
         <div className="Form-group">
           <label>{app.translator.trans('ziven-checkin.admin.settings.check-in-success-prompt-reward-text')}</label>
-          <div class="helpText">{app.translator.trans('ziven-checkin.admin.settings.reward-money-requirement')}</div>
-          <div class="helpText">{app.translator.trans('ziven-checkin.admin.settings.check-in-success-prompt-example-reward-text')}</div>
-          <input type="string" className="FormControl" step="any" bidi={this.setting('ziven-forum-checkin.checkinSuccessPromptRewardText')} />
+          <div className="helpText">{app.translator.trans('ziven-checkin.admin.settings.reward-money-requirement')}</div>
+          <div className="helpText">{app.translator.trans('ziven-checkin.admin.settings.check-in-success-prompt-example-reward-text')}</div>
+          <input type="text" className="FormControl" bidi={this.setting('ziven-forum-checkin.checkinSuccessPromptRewardText')} />
         </div>
       );
     })
