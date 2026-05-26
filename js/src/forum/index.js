@@ -3,8 +3,8 @@ import app from 'flarum/forum/app';
 import IndexPage from 'flarum/forum/components/IndexPage';
 import Button from 'flarum/common/components/Button';
 import Alert from 'flarum/common/components/Alert';
-import checkInSuccessModal from './components/checkInSuccessModal';
-import checkInFailedModal from './components/checkInFailedModal';
+import CheckInSuccessModal from './components/checkInSuccessModal';
+import CheckInFailedModal from './components/checkInFailedModal';
 
 let isSubmittingCheckIn = false;
 let autoCheckInScheduled = false;
@@ -13,7 +13,7 @@ function showCheckInFailurePrompt() {
   const forumCheckinSuccessPromptType = app.forum.attribute('forumCheckinSuccessPromptType');
 
   if (forumCheckinSuccessPromptType === 2) {
-    app.modal.show(checkInFailedModal);
+    app.modal.show(CheckInFailedModal);
     return;
   }
 
@@ -32,7 +32,7 @@ function showCheckInSuccessPrompt() {
   }
 
   if (forumCheckinSuccessPromptType === 2) {
-    app.modal.show(checkInSuccessModal);
+    app.modal.show(CheckInSuccessModal);
     return;
   }
 
