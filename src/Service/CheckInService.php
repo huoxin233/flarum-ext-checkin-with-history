@@ -12,7 +12,7 @@ use Illuminate\Database\ConnectionInterface;
 use Ziven\checkin\Support\CheckInStateResolver;
 use Huoxin\MoneyWithHistory\Service\BalanceManager;
 use Illuminate\Contracts\Events\Dispatcher;
-use Ziven\checkin\Event\checkinUpdated;
+use Ziven\checkin\Event\CheckinUpdated;
 
 class CheckInService
 {
@@ -78,7 +78,7 @@ class CheckInService
             return $user;
         });
 
-        $this->events->dispatch(new checkinUpdated($checkedInUser));
+        $this->events->dispatch(new CheckinUpdated($checkedInUser));
 
         return $checkedInUser;
     }
