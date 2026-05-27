@@ -7,7 +7,7 @@ jobs:
     uses: flarum/framework/.github/workflows/REUSABLE_frontend.yml@1.x
     with:
       enable_bundlewatch: false
-      enable_prettier: false
+      enable_prettier: true
       enable_typescript: false
 
       frontend_directory: ./js
