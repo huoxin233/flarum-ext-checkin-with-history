@@ -21,8 +21,7 @@ class CheckInIntegrationTest extends TestCase
         CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-04-11 12:00:00', 'UTC'));
 
         $this->extension('ziiven-daily-check-in');
-        $this->extension('antoinefr-money');
-        $this->extension('mattoid-money-history');
+        $this->extension('huoxin-money-with-history');
 
         $this->prepareDatabase([
             'users' => [
@@ -114,7 +113,7 @@ class CheckInIntegrationTest extends TestCase
     }
 
     /** @test */
-    public function it_records_reward_history_when_money_extensions_are_enabled(): void
+    public function it_records_reward_history_when_money_extension_is_enabled(): void
     {
         $this->settings()->set('ziven-forum-checkin.checkinRewardMoney', '5.5');
 
@@ -123,13 +122,15 @@ class CheckInIntegrationTest extends TestCase
         );
 
         $user = User::query()->findOrFail(2);
-        $historyEntry = $this->connection()->table('user_money_history')->where('user_id', $user->id)->first();
+        $historyEntry = $this->connection()->table('user_money_history')
+            ->where('user_id', $user->id)
+            ->first();
 
         $this->assertSame(200, $response->getStatusCode());
         $this->assertEquals(5.5, (float) $user->money);
         $this->assertNotNull($historyEntry);
         $this->assertSame('DAILY_CHECKIN_REWARD', $historyEntry->source);
-        $this->assertSame('ziven-checkin.forum.history.checkin-reward', $historyEntry->source_key);
+        $this->assertSame('ziven-checkin.forum.money-history.checkin-reward', $historyEntry->source_key);
         $this->assertEquals(0.0, (float) $historyEntry->balance_before);
         $this->assertEquals(5.5, (float) $historyEntry->balance_after);
     }
@@ -163,7 +164,6 @@ class CheckInIntegrationTest extends TestCase
     /** @test */
     public function user_without_permission_is_denied(): void
     {
-        // Remove the check-in permission for the members group
         $this->database()->table('group_permission')
             ->where('permission', 'checkin.allowCheckIn')
             ->delete();
@@ -181,8 +181,6 @@ class CheckInIntegrationTest extends TestCase
     /** @test */
     public function suspended_user_is_denied_check_in(): void
     {
-        // The extension's UserPolicy checks suspended_until directly,
-        // so we set it on the user without needing flarum-suspend enabled.
         $this->database()->table('users')
             ->where('id', 2)
             ->update(['suspended_until' => Carbon::now()->addDay()]);
@@ -200,31 +198,25 @@ class CheckInIntegrationTest extends TestCase
     /** @test */
     public function it_respects_timezone_offset_at_day_boundary(): void
     {
-        // Forum time is UTC+8, so UTC 16:00 = forum 00:00 (next day).
-        // Set "now" to UTC 2026-04-11 15:59:00 → forum time = 2026-04-11 23:59:00
         CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-04-11 15:59:00', 'UTC'));
         $this->settings()->set('ziven-forum-checkin.checkinTimeZone', '8');
 
-        // First check-in at forum 23:59 on April 11
         $response1 = $this->send(
             $this->request('POST', '/api/checkin', ['authenticatedAs' => 2])
         );
 
         $this->assertSame(200, $response1->getStatusCode());
 
-        // Advance 2 minutes → UTC 16:01 → forum time = 2026-04-12 00:01:00 (next forum day)
         CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-04-11 16:01:00', 'UTC'));
 
         $response2 = $this->send(
             $this->request('POST', '/api/checkin', ['authenticatedAs' => 2])
         );
 
-        // Should succeed because it's a new forum day
         $this->assertSame(200, $response2->getStatusCode());
 
         $user = User::query()->findOrFail(2);
         $this->assertSame(2, (int) $user->total_checkin_count);
-        // Should be continuous since forum yesterday → forum today
         $this->assertSame(2, (int) $user->total_continuous_checkin_count);
     }
 
