@@ -34,7 +34,7 @@ app.initializers.add('ziven-checkin', () => {
       options: {
         0: app.translator.trans('ziven-checkin.admin.settings.None'),
         1: app.translator.trans('ziven-checkin.admin.settings.Alert'),
-        2: app.translator.trans('ziven-checkin.admin.settings.Modal')
+        2: app.translator.trans('ziven-checkin.admin.settings.Modal'),
       },
     })
     .registerSetting(function () {
@@ -64,5 +64,5 @@ app.initializers.add('ziven-checkin', () => {
       },
       'moderate',
       90
-    )
+    );
 });

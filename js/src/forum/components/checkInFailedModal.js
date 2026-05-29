@@ -7,11 +7,10 @@ export default class CheckInFailedModal extends Modal {
   }
 
   title() {
-    return (<div className="checkInResultModal failedTitleText">{app.translator.trans('ziven-checkin.forum.check-in-failed')}</div>);
+    return <div className="checkInResultModal failedTitleText">{app.translator.trans('ziven-checkin.forum.check-in-failed')}</div>;
   }
 
   content() {
-    //
     return (
       <div className="Modal-body">
         <div className="checkInResultModal successText">{app.translator.trans('ziven-checkin.forum.try-again-later')}</div>

@@ -17,7 +17,11 @@ function showCheckInFailurePrompt() {
     return;
   }
 
-  app.alerts.show(Alert, { type: 'error' }, `${app.translator.trans('ziven-checkin.forum.check-in-failed')} ${app.translator.trans('ziven-checkin.forum.try-again-later')}`);
+  app.alerts.show(
+    Alert,
+    { type: 'error' },
+    `${app.translator.trans('ziven-checkin.forum.check-in-failed')} ${app.translator.trans('ziven-checkin.forum.try-again-later')}`
+  );
 }
 
 function showCheckInSuccessPrompt() {
@@ -72,10 +76,11 @@ function submitCheckIn() {
   isSubmittingCheckIn = true;
   m.redraw();
 
-  return app.request({
-    method: 'POST',
-    url: `${app.forum.attribute('apiUrl')}/checkin`,
-  })
+  return app
+    .request({
+      method: 'POST',
+      url: `${app.forum.attribute('apiUrl')}/checkin`,
+    })
     .then((payload) => {
       syncCurrentUser(payload);
       showCheckInSuccessPrompt();
@@ -90,45 +95,60 @@ function submitCheckIn() {
 }
 
 app.initializers.add('ziven-checkin', () => {
-  extend(IndexPage.prototype, 'sidebarItems', function(items) {
-    if(app.session.user!==null && app.forum.attribute('allowCheckIn')===true){
+  extend(IndexPage.prototype, 'sidebarItems', function (items) {
+    if (app.session.user !== null && app.forum.attribute('allowCheckIn') === true) {
       const totalContinuousCheckIn = app.session.user.attribute('totalContinuousCheckIn');
       const canCheckin = app.session.user.attribute('canCheckin');
       let checkinButtonText;
 
-      if(canCheckin===true){
+      if (canCheckin === true) {
         checkinButtonText = app.translator.trans('ziven-checkin.forum.check-in');
-        items.add('forum-checkin', Button.component({
-          icon: 'fas fa-calendar',
-          className: 'Button CheckInButton--yellow',
-          itemClassName: 'App-primaryControl',
-          disabled: isSubmittingCheckIn,
-          loading: isSubmittingCheckIn,
-          onclick: () => submitCheckIn()
-        }, checkinButtonText),50);
+        items.add(
+          'forum-checkin',
+          Button.component(
+            {
+              icon: 'fas fa-calendar',
+              className: 'Button CheckInButton--yellow',
+              itemClassName: 'App-primaryControl',
+              disabled: isSubmittingCheckIn,
+              loading: isSubmittingCheckIn,
+              onclick: () => submitCheckIn(),
+            },
+            checkinButtonText
+          ),
+          50
+        );
 
         const forumAutoCheckIn = app.forum.attribute('forumAutoCheckin');
         const forumAutoCheckInDelay = app.forum.attribute('forumAutoCheckInDelay');
 
-        if(forumAutoCheckIn===1 && autoCheckInScheduled===false && isSubmittingCheckIn===false){
+        if (forumAutoCheckIn === 1 && autoCheckInScheduled === false && isSubmittingCheckIn === false) {
           autoCheckInScheduled = true;
-          setTimeout(function(){
-            if(app.session.user!==null && app.session.user.attribute('canCheckin')===true){
+          setTimeout(function () {
+            if (app.session.user !== null && app.session.user.attribute('canCheckin') === true) {
               submitCheckIn();
             }
           }, forumAutoCheckInDelay);
         }
-      }else{
-        checkinButtonText = totalContinuousCheckIn<=1
-          ? app.translator.trans('ziven-checkin.forum.checked-in-day', {count: totalContinuousCheckIn})
-          : app.translator.trans('ziven-checkin.forum.checked-in-days', {count: totalContinuousCheckIn});
+      } else {
+        checkinButtonText =
+          totalContinuousCheckIn <= 1
+            ? app.translator.trans('ziven-checkin.forum.checked-in-day', { count: totalContinuousCheckIn })
+            : app.translator.trans('ziven-checkin.forum.checked-in-days', { count: totalContinuousCheckIn });
 
-        items.add('forum-checkin', Button.component({
-          icon: 'fas fa-calendar-check',
-          className: 'Button CheckInButton--green',
-          itemClassName: 'App-primaryControl',
-          disabled: true
-        }, checkinButtonText),50);
+        items.add(
+          'forum-checkin',
+          Button.component(
+            {
+              icon: 'fas fa-calendar-check',
+              className: 'Button CheckInButton--green',
+              itemClassName: 'App-primaryControl',
+              disabled: true,
+            },
+            checkinButtonText
+          ),
+          50
+        );
       }
     }
   });
