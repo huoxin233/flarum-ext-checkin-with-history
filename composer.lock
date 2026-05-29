@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "19c4c8b1532a3e4caa0211946b584306",
+    "content-hash": "87f9ad333803aebce9139e9ce35712b3",
     "packages": [
         {
             "name": "axy/backtrace",
@@ -8280,6 +8280,90 @@
                 "source": "https://github.com/hamcrest/hamcrest-php/tree/v2.1.1"
             },
             "time": "2025-04-30T06:54:44+00:00"
+        },
+        {
+            "name": "huoxin/money-with-history",
+            "version": "1.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/huoxin233/flarum-ext-money-with-history.git",
+                "reference": "2a34e71db2778b66ff39600ff41a70055b72a9bc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/huoxin233/flarum-ext-money-with-history/zipball/2a34e71db2778b66ff39600ff41a70055b72a9bc",
+                "reference": "2a34e71db2778b66ff39600ff41a70055b72a9bc",
+                "shasum": ""
+            },
+            "require": {
+                "flarum/core": "^1.2.0"
+            },
+            "require-dev": {
+                "flarum/testing": "^1.0.0"
+            },
+            "type": "flarum-extension",
+            "extra": {
+                "flarum-cli": {
+                    "modules": {
+                        "js": true,
+                        "css": true,
+                        "admin": true,
+                        "forum": true,
+                        "locale": true,
+                        "gitConf": true,
+                        "styleci": true,
+                        "jsCommon": false,
+                        "prettier": true,
+                        "typescript": true,
+                        "bundlewatch": false,
+                        "editorConfig": true,
+                        "githubActions": true,
+                        "backendTesting": true
+                    }
+                },
+                "flarum-extension": {
+                    "icon": {
+                        "name": "fas fa-money-check-dollar",
+                        "color": "#fff",
+                        "backgroundColor": "#9A2424"
+                    },
+                    "title": "Money With History",
+                    "category": "feature",
+                    "optional-dependencies": [
+                        "flarum/likes",
+                        "flarum/tags"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Huoxin\\MoneyWithHistory\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "huoxin",
+                    "email": "23447157+huoxin233@users.noreply.github.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A unified Flarum extension that adds a virtual currency system with full transaction history tracking.",
+            "keywords": [
+                "balance",
+                "currency",
+                "flarum",
+                "history",
+                "money"
+            ],
+            "support": {
+                "issues": "https://github.com/huoxin233/flarum-ext-money-with-history/issues",
+                "source": "https://github.com/huoxin233/flarum-ext-money-with-history/tree/1.1.1"
+            },
+            "time": "2026-05-26T11:45:44+00:00"
         },
         {
             "name": "mockery/mockery",
