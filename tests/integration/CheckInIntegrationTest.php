@@ -222,6 +222,81 @@ class CheckInIntegrationTest extends TestCase
         $this->assertSame(2, (int) $user->total_continuous_checkin_count);
     }
 
+    /** @test */
+    public function it_respects_negative_timezone_offset_at_day_boundary(): void
+    {
+        // For UTC-5 (America/New_York), the day boundary (midnight local time) occurs at 05:00 UTC.
+        CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-04-11 04:59:00', 'UTC')); // 23:59 local
+        $this->settings()->set('ziven-forum-checkin.checkinTimeZone', '-5');
+
+        $response1 = $this->send(
+            $this->request('POST', '/api/checkin', ['authenticatedAs' => 2])
+        );
+
+        $this->assertSame(200, $response1->getStatusCode());
+
+        CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-04-11 05:01:00', 'UTC')); // 00:01 local
+
+        $response2 = $this->send(
+            $this->request('POST', '/api/checkin', ['authenticatedAs' => 2])
+        );
+
+        $this->assertSame(200, $response2->getStatusCode());
+
+        $user = User::query()->findOrFail(2);
+        $this->assertSame(2, (int) $user->total_checkin_count);
+        $this->assertSame(2, (int) $user->total_continuous_checkin_count);
+    }
+
+    /** @test */
+    public function it_records_streak_days_in_money_history_params(): void
+    {
+        $this->settings()->set('ziven-forum-checkin.checkinRewardMoney', '10');
+
+        // First check-in
+        $this->send($this->request('POST', '/api/checkin', ['authenticatedAs' => 2]));
+
+        // Second check-in on the next day
+        CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-04-12 12:00:00', 'UTC'));
+        $this->send($this->request('POST', '/api/checkin', ['authenticatedAs' => 2]));
+
+        $historyEntries = $this->connection()->table('user_money_history')
+            ->where('user_id', 2)
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $this->assertCount(2, $historyEntries);
+
+        $secondEntry = $historyEntries[1];
+        $params = json_decode($secondEntry->source_params, true);
+
+        $this->assertIsArray($params);
+        $this->assertArrayHasKey('continuousDays', $params);
+        $this->assertSame(2, $params['continuousDays']);
+        $this->assertEquals(20.0, (float) User::query()->find(2)->money);
+    }
+
+    /** @test */
+    public function serializer_only_exposes_can_checkin_to_the_current_session_actor(): void
+    {
+        // User 2 checks in
+        $this->send($this->request('POST', '/api/checkin', ['authenticatedAs' => 2]));
+
+        // Fetch user 2's profile while authenticated as user 2 (should see canCheckin = false)
+        $response = $this->send($this->request('GET', '/api/users/2', ['authenticatedAs' => 2]));
+        $payload = json_decode((string) $response->getBody(), true);
+        $this->assertArrayHasKey('canCheckin', $payload['data']['attributes']);
+        $this->assertFalse($payload['data']['attributes']['canCheckin']);
+
+        // Fetch user 2's profile while authenticated as user 1 (admin)
+        $responseOther = $this->send($this->request('GET', '/api/users/2', ['authenticatedAs' => 1]));
+        $payloadOther = json_decode((string) $responseOther->getBody(), true);
+        
+        // When user 1 fetches user 2, the 'canCheckin' attribute is omitted entirely 
+        // to prevent leaking state, because it only applies to the session actor viewing their own profile.
+        $this->assertArrayNotHasKey('canCheckin', $payloadOther['data']['attributes']);
+    }
+
     private function connection(): ConnectionInterface
     {
         return $this->app()->getContainer()->make(ConnectionInterface::class);
