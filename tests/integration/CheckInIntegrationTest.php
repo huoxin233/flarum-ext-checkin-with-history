@@ -291,8 +291,8 @@ class CheckInIntegrationTest extends TestCase
         // Fetch user 2's profile while authenticated as user 1 (admin)
         $responseOther = $this->send($this->request('GET', '/api/users/2', ['authenticatedAs' => 1]));
         $payloadOther = json_decode((string) $responseOther->getBody(), true);
-        
-        // When user 1 fetches user 2, the 'canCheckin' attribute is omitted entirely 
+
+        // When user 1 fetches user 2, the 'canCheckin' attribute is omitted entirely
         // to prevent leaking state, because it only applies to the session actor viewing their own profile.
         $this->assertArrayNotHasKey('canCheckin', $payloadOther['data']['attributes']);
     }
@@ -307,4 +307,3 @@ class CheckInIntegrationTest extends TestCase
         return $this->app()->getContainer()->make(SettingsRepositoryInterface::class);
     }
 }
-

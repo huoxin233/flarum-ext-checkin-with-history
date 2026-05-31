@@ -10,7 +10,7 @@ class UserPolicy extends AbstractPolicy
 {
     public function allowCheckIn(User $actor, User $user)
     {
-        if (($actor->id === $user->id && $actor->hasPermission('checkin.allowCheckIn') && ! $this->isSuspended($user))) {
+        if ($actor->id === $user->id && $actor->hasPermission('checkin.allowCheckIn') && ! $this->isSuspended($user)) {
             return $this->allow();
         }
 

@@ -7,12 +7,12 @@ use Flarum\Foundation\ValidationException;
 use Flarum\Locale\Translator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
-use Illuminate\Contracts\Container\Container;
-use Illuminate\Database\ConnectionInterface;
-use Ziven\checkin\Support\CheckInStateResolver;
 use Huoxin\MoneyWithHistory\Service\BalanceManager;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\ConnectionInterface;
 use Ziven\checkin\Event\CheckinUpdated;
+use Ziven\checkin\Support\CheckInStateResolver;
 
 class CheckInService
 {
