@@ -64,6 +64,7 @@
     },
     "require-dev": {
         "flarum/testing": "^1.0.0",
-        "huoxin/money-with-history": "^1.0.0"
+        "huoxin/money-with-history": "^1.0.0",
+        "flarum/suspend": "^1.8"
     }
 }

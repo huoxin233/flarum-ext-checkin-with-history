@@ -22,6 +22,7 @@ class CheckInIntegrationTest extends TestCase
 
         $this->extension('ziiven-daily-check-in');
         $this->extension('huoxin-money-with-history');
+        $this->extension('flarum-suspend');
 
         $this->prepareDatabase([
             'users' => [
