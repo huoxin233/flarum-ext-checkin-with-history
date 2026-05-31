@@ -8283,20 +8283,23 @@
         },
         {
             "name": "huoxin/money-with-history",
-            "version": "1.1.1",
+            "version": "1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/huoxin233/flarum-ext-money-with-history.git",
-                "reference": "2a34e71db2778b66ff39600ff41a70055b72a9bc"
+                "reference": "1558f292cf1c17f4c166094ae26f7235282df5bd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/huoxin233/flarum-ext-money-with-history/zipball/2a34e71db2778b66ff39600ff41a70055b72a9bc",
-                "reference": "2a34e71db2778b66ff39600ff41a70055b72a9bc",
+                "url": "https://api.github.com/repos/huoxin233/flarum-ext-money-with-history/zipball/1558f292cf1c17f4c166094ae26f7235282df5bd",
+                "reference": "1558f292cf1c17f4c166094ae26f7235282df5bd",
                 "shasum": ""
             },
             "require": {
                 "flarum/core": "^1.2.0"
+            },
+            "provide": {
+                "antoinefr/flarum-ext-money": "^1.4.0"
             },
             "require-dev": {
                 "flarum/testing": "^1.0.0"
@@ -8361,9 +8364,9 @@
             ],
             "support": {
                 "issues": "https://github.com/huoxin233/flarum-ext-money-with-history/issues",
-                "source": "https://github.com/huoxin233/flarum-ext-money-with-history/tree/1.1.1"
+                "source": "https://github.com/huoxin233/flarum-ext-money-with-history/tree/1.1.2"
             },
-            "time": "2026-05-26T11:45:44+00:00"
+            "time": "2026-05-30T13:33:53+00:00"
         },
         {
             "name": "mockery/mockery",
