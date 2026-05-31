@@ -29,6 +29,7 @@ class CheckInService
 
     public function checkIn(User $actor): User
     {
+        $actor->assertRegistered();
         $actor->assertCan('checkin.allowCheckIn', $actor);
 
         /** @var User $checkedInUser */
