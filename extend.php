@@ -4,9 +4,9 @@ use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Extend;
 use Flarum\User\User;
-use Ziven\checkin\Access\UserPolicy;
-use Ziven\checkin\AddAttribute\AddUserCheckinAttributes;
-use Ziven\checkin\Api\Controller\CheckInController;
+use Ziven\DailyCheckin\Access\UserPolicy;
+use Ziven\DailyCheckin\AddAttribute\AddUserCheckinAttributes;
+use Ziven\DailyCheckin\Api\Controller\CheckInController;
 
 $extend = [
     (new Extend\Frontend('admin'))->js(__DIR__.'/js/dist/admin.js'),

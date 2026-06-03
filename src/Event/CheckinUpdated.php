@@ -1,6 +1,6 @@
 <?php
 
-namespace Ziven\checkin\Event;
+namespace Ziven\DailyCheckin\Event;
 
 use Flarum\User\User;
 

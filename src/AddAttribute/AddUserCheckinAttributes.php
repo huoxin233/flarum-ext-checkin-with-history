@@ -1,10 +1,10 @@
 <?php
 
-namespace Ziven\checkin\AddAttribute;
+namespace Ziven\DailyCheckin\AddAttribute;
 
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\User\User;
-use Ziven\checkin\Support\CheckInStateResolver;
+use Ziven\DailyCheckin\Support\CheckInStateResolver;
 
 class AddUserCheckinAttributes
 {

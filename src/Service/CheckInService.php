@@ -1,6 +1,6 @@
 <?php
 
-namespace Ziven\checkin\Service;
+namespace Ziven\DailyCheckin\Service;
 
 use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\ValidationException;
@@ -11,8 +11,8 @@ use Huoxin\MoneyWithHistory\Service\BalanceManager;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\ConnectionInterface;
-use Ziven\checkin\Event\CheckinUpdated;
-use Ziven\checkin\Support\CheckInStateResolver;
+use Ziven\DailyCheckin\Event\CheckinUpdated;
+use Ziven\DailyCheckin\Support\CheckInStateResolver;
 
 class CheckInService
 {

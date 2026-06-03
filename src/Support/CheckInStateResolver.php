@@ -1,6 +1,6 @@
 <?php
 
-namespace Ziven\checkin\Support;
+namespace Ziven\DailyCheckin\Support;
 
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;

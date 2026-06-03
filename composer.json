@@ -14,7 +14,7 @@
     "prefer-stable": true,
     "autoload": {
         "psr-4": {
-            "Ziven\\checkin\\": "src/"
+            "Ziven\\DailyCheckin\\": "src/"
         }
     },
     "authors": [
@@ -44,7 +44,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Ziven\\checkin\\Tests\\": "tests/"
+            "Ziven\\DailyCheckin\\Tests\\": "tests/"
         }
     },
     "scripts": {

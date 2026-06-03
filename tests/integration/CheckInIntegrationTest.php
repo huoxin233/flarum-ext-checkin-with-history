@@ -1,6 +1,6 @@
 <?php
 
-namespace Ziven\checkin\Tests\integration;
+namespace Ziven\DailyCheckin\Tests\integration;
 
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
