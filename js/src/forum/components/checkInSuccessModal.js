@@ -15,7 +15,6 @@ export default class CheckInSuccessModal extends Modal {
     const forumCheckinSuccessPromptText = app.forum.attribute('forumCheckinSuccessPromptText');
     const forumCheckinSuccessPromptRewardText = app.forum.attribute('forumCheckinSuccessPromptRewardText');
     const forumCheckinRewardMoney = app.forum.attribute('forumCheckinRewardMoney');
-    const moneyExtensionExist = app.forum.attribute('antoinefr-money.moneyname') !== undefined;
 
     let moneyName = '';
     let rewardText = '';
@@ -26,8 +25,8 @@ export default class CheckInSuccessModal extends Modal {
       successTextClassName = 'checkInResultModal successText';
     }
 
-    if (moneyExtensionExist === true && forumCheckinSuccessPromptRewardText !== '') {
-      moneyName = app.forum.attribute('antoinefr-money.moneyname') || '[money]';
+    if (forumCheckinSuccessPromptRewardText !== '') {
+      moneyName = app.forum.attribute('huoxin-money-with-history.money_name') || app.forum.attribute('antoinefr-money.moneyname') || '[money]';
       rewardText = moneyName.replace('[money]', forumCheckinRewardMoney);
       rewardTextClassName = 'checkInResultModal rewardText';
     }

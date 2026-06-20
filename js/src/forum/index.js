@@ -29,8 +29,6 @@ function showCheckInSuccessPrompt() {
   const forumCheckinSuccessPromptRewardText = app.forum.attribute('forumCheckinSuccessPromptRewardText');
   const forumCheckinSuccessPromptType = app.forum.attribute('forumCheckinSuccessPromptType');
   const forumCheckinRewardMoney = app.forum.attribute('forumCheckinRewardMoney');
-  const moneyExtensionExist = app.forum.attribute('antoinefr-money.moneyname') !== undefined;
-
   if (forumCheckinSuccessPromptText === '' && forumCheckinSuccessPromptRewardText === '') {
     return;
   }
@@ -45,8 +43,8 @@ function showCheckInSuccessPrompt() {
     app.alerts.show(Alert, { type: 'success' }, checkInSuccessText);
   }
 
-  if (moneyExtensionExist === true && forumCheckinSuccessPromptRewardText !== '') {
-    const moneyName = app.forum.attribute('antoinefr-money.moneyname') || '[money]';
+  if (forumCheckinSuccessPromptRewardText !== '') {
+    const moneyName = app.forum.attribute('huoxin-money-with-history.money_name') || app.forum.attribute('antoinefr-money.moneyname') || '[money]';
     const rewardText = moneyName.replace('[money]', forumCheckinRewardMoney);
     const checkInSuccessRewardText = forumCheckinSuccessPromptRewardText.replace('[reward]', rewardText);
 

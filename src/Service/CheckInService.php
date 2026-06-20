@@ -2,7 +2,6 @@
 
 namespace Ziven\DailyCheckin\Service;
 
-use Flarum\Extension\ExtensionManager;
 use Flarum\Foundation\ValidationException;
 use Flarum\Locale\Translator;
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -20,7 +19,6 @@ class CheckInService
         private ConnectionInterface $connection,
         private CheckInStateResolver $stateResolver,
         private SettingsRepositoryInterface $settings,
-        private ExtensionManager $extensions,
         private Container $container,
         private Translator $translator,
         private Dispatcher $events
@@ -57,7 +55,7 @@ class CheckInService
 
             $reward = $this->rewardAmount();
 
-            if ($this->shouldApplyReward($reward)) {
+            if ($reward !== 0.0) {
                 $balanceManager = $this->container->make(BalanceManager::class);
 
                 if (method_exists($balanceManager, 'applyBalanceChange')) {
@@ -87,15 +85,6 @@ class CheckInService
     private function rewardAmount(): float
     {
         return (float) $this->settings->get('ziven-forum-checkin.checkinRewardMoney', 0);
-    }
-
-    private function shouldApplyReward(float $reward): bool
-    {
-        return $reward !== 0.0
-            && (
-                $this->extensions->isEnabled('antoinefr-money')
-                || $this->extensions->isEnabled('huoxin-money-with-history')
-            );
     }
 
     private function validationException(string $messageKey): ValidationException
