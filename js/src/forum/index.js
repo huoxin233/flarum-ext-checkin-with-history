@@ -107,11 +107,10 @@ app.initializers.add('ziven-checkin', () => {
           'forum-checkin',
           Button.component(
             {
-              icon: 'fas fa-calendar',
+              icon: isSubmittingCheckIn ? 'fas fa-spinner fa-spin' : 'fas fa-calendar',
               className: 'Button CheckInButton--yellow',
               itemClassName: 'App-primaryControl',
               disabled: isSubmittingCheckIn,
-              loading: isSubmittingCheckIn,
               onclick: () => submitCheckIn(),
             },
             checkinButtonText
