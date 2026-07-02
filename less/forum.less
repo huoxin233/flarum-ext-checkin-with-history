@@ -1,20 +1,28 @@
-.item-forum-checkin>.Button{ width:190px; }
+.item-forum-checkin>.Button{
+  width:190px;
+}
 
 @media @phone {
   .item-forum-checkin{
-      right:37px;
+    right:37px;
   }
 
-  .item-forum-checkin>.Button{ width:40px;}
+  .item-forum-checkin>.Button{
+    width:48px;
+  }
+
+  .item-forum-checkin>.CheckInButton--shifted {
+    transform: translateX(-47.5px);
+  }
 }
 
-.CheckInButton--green {background-color:#b4f1af;color:#33722d;padding-left:20px;padding-right:20px;}
+.CheckInButton--green {background-color:#b4f1af;color:#33722d;}
 .CheckInButton--green:focus {background-color:#b4f1af;color:#33722d}
 .CheckInButton--green:hover {background-color:#a0ed99;}
 .CheckInButton--green:active {background-color:#8be984;}
 .CheckInButton--green:disabled {background-color:#b4f1af;}
 
-.CheckInButton--yellow {background-color:#fbbc04;color:#fff;padding-left:20px;padding-right:20px;}
+.CheckInButton--yellow {background-color:#fbbc04;color:#fff;}
 .CheckInButton--yellow:focus {background-color:#fbbc04;color:#fff}
 .CheckInButton--yellow:hover {background-color:#e2a904;}
 .CheckInButton--yellow:active {background-color:#c99603;}

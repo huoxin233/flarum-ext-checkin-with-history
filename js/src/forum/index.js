@@ -95,9 +95,15 @@ function submitCheckIn() {
 app.initializers.add('ziven-checkin', () => {
   extend(IndexPage.prototype, 'sidebarItems', function (items) {
     if (app.session.user !== null && app.forum.attribute('allowCheckIn') === true) {
+      const routeName = app.current.get('routeName');
       const totalContinuousCheckIn = app.session.user.attribute('totalContinuousCheckIn');
       const canCheckin = app.session.user.attribute('canCheckin');
       let checkinButtonText;
+
+      let shiftClass = '';
+      if (routeName === 'tag' && 'fof-follow-tags' in flarum.extensions) {
+        shiftClass = ' CheckInButton--shifted';
+      }
 
       if (canCheckin === true) {
         checkinButtonText = app.translator.trans('ziven-checkin.forum.check-in');
@@ -106,7 +112,7 @@ app.initializers.add('ziven-checkin', () => {
           Button.component(
             {
               icon: isSubmittingCheckIn ? 'fas fa-spinner fa-spin' : 'fas fa-calendar',
-              className: 'Button CheckInButton--yellow',
+              className: `Button CheckInButton--yellow${shiftClass}`,
               itemClassName: 'App-primaryControl',
               disabled: isSubmittingCheckIn,
               onclick: () => submitCheckIn(),
@@ -138,7 +144,7 @@ app.initializers.add('ziven-checkin', () => {
           Button.component(
             {
               icon: 'fas fa-calendar-check',
-              className: 'Button CheckInButton--green',
+              className: `Button CheckInButton--green${shiftClass}`,
               itemClassName: 'App-primaryControl',
               disabled: true,
             },
