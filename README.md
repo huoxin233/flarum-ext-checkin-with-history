@@ -11,7 +11,7 @@ Requires PHP 8.0+, Flarum 1.8+, and `huoxin/money-with-history` 1.2.4+ (1.x).
 Until a tagged package is available on Packagist, add the repository and install the main branch:
 
 ```sh
-composer config repositories.checkin-with-history vcs git@github.com:primexcalibur/flarum-ext-checkin-with-history.git
+composer config repositories.checkin-with-history vcs git@github.com:invites-fun/flarum-daily-check-in.git
 composer require primexcalibur/checkin-with-history:dev-main -W
 php flarum extension:enable huoxin-money-with-history
 php flarum extension:enable primexcalibur-checkin-with-history

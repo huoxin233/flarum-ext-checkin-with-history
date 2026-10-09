@@ -9,8 +9,8 @@
         "huoxin/money-with-history": "^1.2.4"
     },
     "support": {
-        "source": "https://github.com/primexcalibur/flarum-ext-checkin-with-history",
-        "issues": "https://github.com/primexcalibur/flarum-ext-checkin-with-history/issues"
+        "source": "https://github.com/invites-fun/flarum-daily-check-in",
+        "issues": "https://github.com/invites-fun/flarum-daily-check-in/issues"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
