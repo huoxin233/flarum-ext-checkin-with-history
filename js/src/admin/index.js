@@ -1,8 +1,9 @@
 import app from 'flarum/admin/app';
+import './history';
 
 app.initializers.add('ziven-checkin', () => {
   app.extensionData
-    .for('ziiven-daily-check-in')
+    .for('primexcalibur-checkin-with-history')
     .registerSetting(function () {
       return (
         <div className="Form-group">

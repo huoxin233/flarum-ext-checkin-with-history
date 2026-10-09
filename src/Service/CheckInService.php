@@ -7,9 +7,9 @@ use Flarum\Locale\Translator;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
 use Huoxin\MoneyWithHistory\Service\BalanceManager;
-use Illuminate\Contracts\Container\Container;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\ConnectionInterface;
+use Mattoid\CheckinHistory\CheckinHistoryManager;
 use Ziven\DailyCheckin\Event\CheckinUpdated;
 use Ziven\DailyCheckin\Support\CheckInStateResolver;
 
@@ -19,7 +19,8 @@ class CheckInService
         private ConnectionInterface $connection,
         private CheckInStateResolver $stateResolver,
         private SettingsRepositoryInterface $settings,
-        private Container $container,
+        private BalanceManager $balances,
+        private CheckinHistoryManager $history,
         private Translator $translator,
         private Dispatcher $events
     ) {
@@ -47,29 +48,15 @@ class CheckInService
                 throw $this->validationException('try-again-later');
             }
 
-            $user->last_checkin_time = $state['currentForumTime']->toDateTimeString();
-            $user->total_checkin_count = (int) $user->total_checkin_count + 1;
-            $user->total_continuous_checkin_count = $state['canCheckinContinuous']
-                ? (int) $user->total_continuous_checkin_count + 1
-                : 1;
+            $this->history->recordCheckin($user, $state['currentForumTime']->toDateString(), 0, $state['currentForumTime']);
 
             $reward = $this->rewardAmount();
-
             if ($reward !== 0.0) {
-                $balanceManager = $this->container->make(BalanceManager::class);
-
-                if (method_exists($balanceManager, 'applyBalanceChange')) {
-                    $balanceManager->applyBalanceChange(
-                        $user,
-                        $reward,
-                        'DAILY_CHECKIN_REWARD',
-                        'ziven-checkin.forum.money-history.checkin-reward',
-                        [
-                            'continuousDays' => (int) $user->total_continuous_checkin_count,
-                        ],
-                        $user
-                    );
-                }
+                $this->balances->applyBalanceChange(
+                    $user, $reward, 'DAILY_CHECKIN_REWARD',
+                    'ziven-checkin.forum.money-history.checkin-reward',
+                    ['continuousDays' => (int) $user->total_continuous_checkin_count], $user
+                );
             }
 
             $user->save();

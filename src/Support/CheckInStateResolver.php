@@ -6,6 +6,7 @@ use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
+use Mattoid\CheckinHistory\Model\UserCheckinHistory;
 
 class CheckInStateResolver
 {
@@ -23,9 +24,22 @@ class CheckInStateResolver
         return [
             'currentForumTime' => $currentForumTime,
             'lastCheckInTime' => $lastCheckInTime,
-            'canCheckin' => $lastCheckInDay === null || $currentForumDay->greaterThan($lastCheckInDay),
+            'canCheckin' => ($lastCheckInDay === null || $currentForumDay->greaterThan($lastCheckInDay))
+                && ! $this->hasCheckInOn($user, $currentForumDay->toDateString()),
             'canCheckinContinuous' => $lastCheckInDay !== null && $lastCheckInDay->equalTo($currentForumDay->subDay()),
         ];
+    }
+
+    public function hasCheckInOn(User $user, string $date): bool
+    {
+        return $this->lastCheckInDate($user) === $date
+            || UserCheckinHistory::query()
+                ->where('user_id', $user->id)->where('last_checkin_date', $date)->exists();
+    }
+
+    public function lastCheckInDate(User $user): ?string
+    {
+        return $this->normalizeStoredDateTime($user->last_checkin_time)?->toDateString();
     }
 
     public function currentForumTime(): CarbonImmutable

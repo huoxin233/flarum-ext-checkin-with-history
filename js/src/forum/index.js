@@ -1,8 +1,10 @@
+import './history';
 import { extend } from 'flarum/common/extend';
 import app from 'flarum/forum/app';
 import IndexPage from 'flarum/forum/components/IndexPage';
 import Button from 'flarum/common/components/Button';
 import Alert from 'flarum/common/components/Alert';
+import extractText from 'flarum/common/utils/extractText';
 import CheckInSuccessModal from './components/checkInSuccessModal';
 import CheckInFailedModal from './components/checkInFailedModal';
 
@@ -113,6 +115,7 @@ app.initializers.add('ziven-checkin', () => {
             {
               icon: isSubmittingCheckIn ? 'fas fa-spinner fa-spin' : 'fas fa-calendar',
               className: `Button CheckInButton--yellow${shiftClass}`,
+              'aria-label': extractText(checkinButtonText),
               itemClassName: 'App-primaryControl',
               disabled: isSubmittingCheckIn,
               onclick: () => submitCheckIn(),
@@ -145,6 +148,7 @@ app.initializers.add('ziven-checkin', () => {
             {
               icon: 'fas fa-calendar-check',
               className: `Button CheckInButton--green${shiftClass}`,
+              'aria-label': extractText(checkinButtonText),
               itemClassName: 'App-primaryControl',
               disabled: true,
             },

@@ -11,6 +11,9 @@
     processIsolation="true"
     stopOnFailure="false"
 >
+    <php>
+        <ini name="date.timezone" value="UTC" />
+    </php>
     <coverage processUncoveredFiles="true">
         <include>
             <directory suffix=".php">../src/</directory>

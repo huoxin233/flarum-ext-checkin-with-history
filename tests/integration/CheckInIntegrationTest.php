@@ -20,7 +20,7 @@ class CheckInIntegrationTest extends TestCase
 
         CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-04-11 12:00:00', 'UTC'));
 
-        $this->extension('ziiven-daily-check-in');
+        $this->extension('primexcalibur-checkin-with-history');
         $this->extension('huoxin-money-with-history');
         $this->extension('flarum-suspend');
 

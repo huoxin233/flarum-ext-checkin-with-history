@@ -1,31 +1,43 @@
 {
-    "name": "ziiven/flarum-daily-check-in",
-    "description": "A Flarum extension. Add a button in the index page that allow user to daily check in the forum and receive reward.",
+    "name": "primexcalibur/checkin-with-history",
+    "description": "Daily check-in, history calendar and supplementary check-in cards for Flarum.",
     "type": "flarum-extension",
-    "license": "MIT",
+    "license": "(MIT AND LPL-1.02)",
     "require": {
-        "flarum/core": "^1.0",
-        "antoinefr/flarum-ext-money": "^1.4.0"
+        "php": "^8.0",
+        "flarum/core": "^1.8.0",
+        "huoxin/money-with-history": "^1.2.4"
     },
     "support": {
-        "issues": "https://github.com/Ziiven/flarum-daily-check-in/issues",
-        "source": "https://github.com/Ziiven/flarum-daily-check-in"
+        "source": "https://github.com/primexcalibur/flarum-ext-checkin-with-history",
+        "issues": "https://github.com/primexcalibur/flarum-ext-checkin-with-history/issues"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "autoload": {
         "psr-4": {
-            "Ziven\\DailyCheckin\\": "src/"
+            "Ziven\\DailyCheckin\\": "src/",
+            "Mattoid\\CheckinHistory\\": "src/History/"
         }
     },
     "authors": [
         {
             "name": "Ziven"
+        },
+        {
+            "name": "mattoid"
+        },
+        {
+            "name": "huoxin"
+        },
+        {
+            "name": "primexcalibur",
+            "email": "269682658+primexcalibur@users.noreply.github.com"
         }
     ],
     "extra": {
         "flarum-extension": {
-            "title": "Ziven Daily Check In",
+            "title": "Check-in with History",
             "icon": {
                 "name": "fas fa-calendar-check",
                 "backgroundColor": "#238c59",
@@ -45,7 +57,9 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Ziven\\DailyCheckin\\Tests\\": "tests/"
+            "Ziven\\DailyCheckin\\Tests\\": "tests/",
+            "Mattoid\\CheckinHistory\\Tests\\Unit\\": "tests/history-unit/",
+            "Mattoid\\CheckinHistory\\Tests\\Integration\\Api\\": "tests/integration/history/"
         }
     },
     "scripts": {
@@ -65,7 +79,10 @@
     },
     "require-dev": {
         "flarum/testing": "^1.0.0",
-        "huoxin/money-with-history": "^1.0.0",
         "flarum/suspend": "^1.8"
+    },
+    "replace": {
+        "ziiven/flarum-daily-check-in": "*",
+        "mattoid/flarum-daily-check-in-history": "*"
     }
 }

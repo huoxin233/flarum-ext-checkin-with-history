@@ -1,0 +1,62 @@
+.CheckinHistorySettingsPage {
+  .Form {
+    max-width: 700px;
+  }
+
+  fieldset {
+    margin-bottom: 30px;
+    padding: 0;
+    border: none;
+
+    legend {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--heading-color);
+      border-bottom: 1px solid var(--control-bg-shaded);
+      padding-bottom: 8px;
+      margin-bottom: 15px;
+      display: block;
+      width: 100%;
+    }
+
+    > .helpText {
+      margin-top: -10px;
+      margin-bottom: 15px;
+    }
+  }
+
+  .CheckinAdminGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .CheckinAdminSwitchGroup {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .helpText {
+      margin-top: 6px;
+    }
+  }
+
+  .CheckinColorControl {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .CheckinColorPreview {
+      width: 32px;
+      height: 32px;
+      border-radius: @border-radius;
+      border: 1px solid var(--control-bg-shaded);
+      flex-shrink: 0;
+      box-shadow: inset 0 0 2px var(--shadow-color);
+    }
+  }
+}

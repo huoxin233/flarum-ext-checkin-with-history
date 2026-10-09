@@ -1,4 +1,4 @@
-name: Ziven Daily Check In PHP
+name: Check-in with History PHP
 
 on: [workflow_dispatch, push, pull_request]
 
@@ -7,6 +7,6 @@ jobs:
     uses: flarum/framework/.github/workflows/REUSABLE_backend.yml@1.x
     with:
       enable_backend_testing: true
-      php_versions: '["8.3", "8.4", "8.5"]'
+      php_versions: '["8.0", "8.3", "8.4"]'
 
       backend_directory: .

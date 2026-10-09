@@ -1,4 +1,4 @@
-name: Ziven Daily Check In JS
+name: Check-in with History JS
 
 on: [workflow_dispatch, push, pull_request]
 
@@ -8,12 +8,16 @@ jobs:
     with:
       enable_bundlewatch: false
       enable_prettier: true
-      enable_typescript: false
+      enable_typescript: true
+      build_typings_script: ''
+      type_coverage_script: ''
 
       frontend_directory: ./js
       backend_directory: .
-      js_package_manager: yarn
-      main_git_branch: master
+      js_package_manager: npm
+      main_git_branch: main
+      git_actor_name: primexcalibur
+      git_actor_email: 269682658+primexcalibur@users.noreply.github.com
 
     secrets:
       bundlewatch_github_token: ${{ secrets.BUNDLEWATCH_GITHUB_TOKEN }}
