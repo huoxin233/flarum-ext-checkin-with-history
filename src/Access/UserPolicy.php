@@ -1,6 +1,6 @@
 <?php
 
-namespace Ziven\DailyCheckin\Access;
+namespace Primexcalibur\Checkin\Access;
 
 use Carbon\Carbon;
 use Flarum\User\Access\AbstractPolicy;

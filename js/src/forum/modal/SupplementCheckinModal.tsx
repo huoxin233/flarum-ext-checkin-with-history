@@ -2,13 +2,10 @@ import app from 'flarum/forum/app';
 import Modal, { type IInternalModalAttrs } from 'flarum/common/components/Modal';
 import Button from 'flarum/common/components/Button';
 import type Mithril from 'mithril';
-import type { ApiPayloadSingle } from 'flarum/common/Store';
+import { submitCheckIn } from '../utils/checkin';
 
 export interface SupplementCheckinModalAttrs extends IInternalModalAttrs {
-  info: {
-    dateStr: string;
-    [key: string]: any;
-  };
+  date: string;
   callback?: () => void;
 }
 
@@ -16,7 +13,7 @@ export default class SupplementCheckinModal extends Modal<SupplementCheckinModal
   loading: boolean = false;
 
   title(): Mithril.Children {
-    return app.translator.trans('mattoid-daily-check-in-history.forum.modal.checkin');
+    return app.translator.trans('primexcalibur-checkin-with-history.forum.modal.checkin');
   }
 
   className(): string {
@@ -28,14 +25,14 @@ export default class SupplementCheckinModal extends Modal<SupplementCheckinModal
       <div className="Modal-body" style={{ textAlign: 'center' }}>
         <div className="Form-group">
           <label className="label">
-            {app.translator.trans('mattoid-daily-check-in-history.forum.modal.supplement-checkin-desc', {
-              dateStr: this.attrs.info.dateStr,
+            {app.translator.trans('primexcalibur-checkin-with-history.forum.modal.supplement-checkin-desc', {
+              dateStr: this.attrs.date,
             })}
           </label>
         </div>
         <div className="Form-group">
           <Button type="submit" className="Button Button--primary" loading={this.loading}>
-            {app.translator.trans('mattoid-daily-check-in-history.forum.modal.submit')}
+            {app.translator.trans('primexcalibur-checkin-with-history.forum.modal.submit')}
           </Button>
         </div>
       </div>
@@ -47,15 +44,7 @@ export default class SupplementCheckinModal extends Modal<SupplementCheckinModal
     this.loading = true;
 
     try {
-      const payload = await app.request<ApiPayloadSingle>({
-        method: 'POST',
-        url: app.forum.attribute('apiUrl') + '/supplement/checkin',
-        body: {
-          date: this.attrs.info.dateStr,
-        },
-      });
-
-      payload.included?.forEach((user) => app.store.pushObject(user));
+      await submitCheckIn(this.attrs.date);
 
       if (this.attrs.callback) {
         this.attrs.callback();

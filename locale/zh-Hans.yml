@@ -1,20 +1,32 @@
-ziven-checkin:
+primexcalibur-checkin-with-history:
   forum:
     check-in: 签到
-    checked-in-day: 已签到{count}天
-    checked-in-days: 已签到{count}天
+    checked-in-days: '已签到{count}天'
     check-in-success: 签到成功
     check-in-failed: 签到失败
     try-again-later: 请稍后再试
     money-history:
       checkin-reward: 每日签到奖励
+      supplementary-checkin-reward: 补签奖励
+      supplementary-checkin-cost: 补签花费
+    page:
+      link-name: 签到历史
+      title: 签到历史
+      checkin-card: 补签卡
+      checkin-card-count: '补签卡：{count}'
+      today: 今天
+      load-failed: 签到日历加载失败，请刷新页面重试。
+      permission-denied: 您没有权限查看该用户的签到历史。
+    modal:
+      checkin: 补签
+      supplement-checkin-desc: '确认要补 {dateStr} 的签到吗？'
+      submit: 确认
   admin:
     settings:
       auto-check-in: 自动签到
       auto-check-in-delay: 自动签到延迟（毫秒）
       timezone: 时区设置
-      reward-money: 签到奖励
-      reward-money-requirement: 需要 <code>huoxin/money-with-history</code> 扩展
+      reward-money-requirement: '需要 <code>huoxin/money-with-history</code> 扩展'
       check-in-success-prompt-type: 签到成功提示类型
       check-in-success-prompt-text: 签到成功提示文字
       check-in-success-prompt-reward-text: 签到成功奖励文字
@@ -24,86 +36,68 @@ ziven-checkin:
       None: 无
       Alert: Alert
       Modal: Modal
-
-mattoid-daily-check-in-history:
-  forum:
-    page:
-      link-name: "签到历史"
-      title: "签到历史"
-      checkin-card: "补签卡"
-      checkin-card-count: "补签卡：{count}"
-      today: "今天"
-      load-failed: "签到日历加载失败，请刷新页面重试。"
-      permission-denied: "您没有权限查看该用户的签到历史。"
+      daily-reward-money: 签到奖励
+      max-supplementary-checkin: 最大连续补签数
+      max-supplementary-checkin-requirement: 允许签到最大连续补签的天数，若中间有已签到的日期则重新计算连续补签天数
+      span-day-checkin: 允许跨天补签
+      span-day-checkin-requirement: 开启后，补签日期之后允许有未签到的日期数据
+      allow-supplementary-check-in: 允许补签
+      issuance-of-supplementary-cards: 发放补签卡
+      complimentary-supplementary-card: 赠送补签卡
+      query-others-history: 查看他人记录
+      consumption: 补签花费
+      reward-money: 补签奖励
+      checkin-range: 补签范围
+      checkin-range-requirement: 允许补签设置天数以内的签到
+      checkin-card: 仅限补签卡
+      checkin-card-requirement: 开启后将不消耗金钱，但补签卡不足时不允许补签
+      checkin-increase: 补签花费增量(%)
+      checkin-increase-requirement: '用户连续补签时，每次签到会比前一次的收费更高。该配置对补签卡无效！（计算公式：补签扣费 = 补签花费 * (补签花费增量 * 连续补签次数 / 100 + 1)）'
+      checkin-color: 签到颜色
+      supplementary-color: 补签颜色
+      min-supplementary-date: 允许最早补签日
+      cdn-fullcalendar-url: 'FullCalendar 主脚本 URL 路径'
+      cdn-fullcalendar-sri: 'FullCalendar 主脚本 SRI 校验哈希'
+      cdn-locales-url: 'FullCalendar 语言包 JS URL 路径'
+      cdn-locales-sri: 'FullCalendar 语言包 JS SRI 校验哈希'
+      submit-give: 赠送
+      user-all: 所有用户
+      give-number: 赠送数量
+      username: 用户名
+      user-help: '多个用户名请以下列符号分割（英文逗号：, 中文逗号：， 竖线：| 空格： ）'
+      range-help: 勾选：用户名不可编辑且不生效，未勾选：用户名必填，仅发送给对应用户
     modal:
-      checkin: "补签"
-      supplement-checkin-desc: "确认要补 {dateStr} 的签到吗？"
-      submit: "确认"
-    money-history:
-      supplementary-checkin-reward: "补签奖励"
-      supplementary-checkin-cost: "补签花费"
-  admin:
-    modal:
-      give-success: "成功向 {count} 位用户发放补签卡。"
+      give-success: '成功向 {count} 位用户发放补签卡。'
     sections:
-      daily: "每日签到"
-      quick-actions: "快捷操作"
-      quick-actions-desc: "向指定用户或全站批量发放补签卡道具。"
-      rules: "补签规则与限制"
-      economy: "经济与费用规则"
-      appearance: "视觉外观与定制"
-      cdn: "静态资源与 CDN 加速"
-      cdn-help: "自定义 FullCalendar 资源的完整下载地址与 SRI 校验。留空则默认使用论坛本地内置静态资源。"
-    settings:
-      max-supplementary-checkin: "最大连续补签数"
-      max-supplementary-checkin-requirement: "允许签到最大连续补签的天数，若中间有已签到的日期则重新计算连续补签天数"
-      span-day-checkin: "允许跨天补签"
-      span-day-checkin-requirement: "开启后，补签日期之后允许有未签到的日期数据"
-      allow-supplementary-check-in: "允许补签"
-      issuance-of-supplementary-cards: "发放补签卡"
-      complimentary-supplementary-card: "赠送补签卡"
-      query-others-history: "查看他人记录"
-      consumption: "补签花费"
-      reward-money: "补签奖励"
-      reward-money-requirement: "需要 <code>huoxin/money-with-history</code> 扩展"
-      checkin-range: "补签范围"
-      checkin-range-requirement: "允许补签设置天数以内的签到"
-      checkin-position: "补签位置"
-      checkin-position-requirement: "补签功能在以下位置进行操作，如果选择小药店，则不展示补签卡商品。若选择日历，则可以使用补签卡或者扣除费用等方式"
-      checkin-position-options:
-        sidebar: "小药店"
-        calendar: "用户中心（日历）"
-      checkin-card: "仅限补签卡"
-      checkin-card-requirement: "开启后将不消耗金钱，但补签卡不足时不允许补签"
-      checkin-increase: "补签花费增量(%)"
-      checkin-increase-requirement: "用户连续补签时，每次签到会比前一次的收费更高。该配置对补签卡无效！（计算公式：补签扣费 = 补签花费 * (补签花费增量 * 连续补签次数 / 100 + 1)）"
-      checkin-color: "签到颜色"
-      supplementary-color: "补签颜色"
-      min-supplementary-date: "允许最早补签日"
-      cdn-fullcalendar-url: "FullCalendar 主脚本 URL 路径"
-      cdn-fullcalendar-sri: "FullCalendar 主脚本 SRI 校验哈希"
-      cdn-locales-url: "FullCalendar 语言包 JS URL 路径"
-      cdn-locales-sri: "FullCalendar 语言包 JS SRI 校验哈希"
-      submit-give: "赠送"
-      user-all: "所有用户"
-      give-number: "赠送数量"
-      username: "用户名"
-      user-group: "用户组"
-      group-help: "若用户组非空，则用户名规则不生效，以用户组优先"
-      user-help: "多个用户名请以下列符号分割（英文逗号：, 中文逗号：， 竖线：| 空格： ）"
-      range-help: "勾选：用户名不可编辑且不生效，未勾选：用户名必填，仅发送给对应用户"
+      daily: 每日签到
+      quick-actions: 快捷操作
+      quick-actions-desc: 向指定用户或全站批量发放补签卡道具。
+      rules: 补签规则与限制
+      economy: 经济与费用规则
+      appearance: 视觉外观与定制
+      cdn: '静态资源与 CDN 加速'
+      cdn-help: '自定义 FullCalendar 资源的完整下载地址与 SRI 校验。留空则默认使用论坛本地内置静态资源。'
   api:
     error:
-      already-checked-in: "签到失败，{date} 已有签到记录"
-      date-required: "签到日期不能为空"
-      invalid-date: "日期格式不正确，必须为 YYYY-MM-DD"
-      invalid-amount: "赠送数量必须大于 0"
-      empty-usernames: "请至少输入一个用户名"
-      invalid-usernames: "请输入有效的用户名"
-      checkin-range: "补签请求超出有效范围，不允许补签超过{day}天的记录"
-      max-supplementary-checkin: "连续补签超出限制，允许最大连续补签{day}天"
-      span-day-checkin: "签到失败，{date}之后有未签到记录，不允许跨天签到"
-      insufficient-balance: "余额不足，补签失败"
-      insufficient-checkin-card: "补签卡不足"
-      min-supplementary-date: "不允许补签{day}以前的记录"
-      greater-than-today: "签到日期不允许大于今天"
+      already-checked-in: '签到失败，{date} 已有签到记录'
+      date-required: 签到日期不能为空
+      invalid-date: '日期格式不正确，必须为 YYYY-MM-DD'
+      invalid-amount: '赠送数量必须大于 0'
+      empty-usernames: 请至少输入一个用户名
+      invalid-usernames: 请输入有效的用户名
+      checkin-range: '补签请求超出有效范围，不允许补签超过{day}天的记录'
+      max-supplementary-checkin: '连续补签超出限制，允许最大连续补签{day}天'
+      span-day-checkin: '签到失败，{date}之后有未签到记录，不允许跨天签到'
+      insufficient-balance: 余额不足，补签失败
+      insufficient-checkin-card: 补签卡不足
+      min-supplementary-date: '不允许补签{day}以前的记录'
+      greater-than-today: 签到日期不允许大于今天
+ziven-checkin:
+  forum:
+    money-history:
+      checkin-reward: '=> primexcalibur-checkin-with-history.forum.money-history.checkin-reward'
+mattoid-daily-check-in-history:
+  forum:
+    money-history:
+      supplementary-checkin-reward: '=> primexcalibur-checkin-with-history.forum.money-history.supplementary-checkin-reward'
+      supplementary-checkin-cost: '=> primexcalibur-checkin-with-history.forum.money-history.supplementary-checkin-cost'

@@ -8,11 +8,11 @@ Requires PHP 8.0+, Flarum 1.8+, and `huoxin/money-with-history` 1.2.4+ (1.x).
 
 ## Install
 
-Until a tagged package is available on Packagist, add the repository and install the main branch:
+Add the GitHub repository to Composer and install the release:
 
 ```sh
-composer config repositories.checkin-with-history vcs git@github.com:invites-fun/flarum-daily-check-in.git
-composer require primexcalibur/checkin-with-history:dev-main -W
+composer config repositories.checkin-with-history vcs git@github.com:primexcalibur/flarum-ext-checkin-with-history.git
+composer require primexcalibur/checkin-with-history:^1.0 -W
 php flarum extension:enable huoxin-money-with-history
 php flarum extension:enable primexcalibur-checkin-with-history
 php flarum migrate
@@ -57,7 +57,17 @@ Existing API routes remain available:
 | POST | `/api/supplement/checkin` | Supplement a date |
 | POST | `/api/give/checkin/card` | Issue cards |
 
-The original `Ziven\DailyCheckin\Event\CheckinUpdated` and `Mattoid\CheckinHistory\Event\SupplementaryCheckinEvent` remain available and are dispatched after the operation's transaction succeeds. Normal check-in history no longer depends on an event listener.
+## Architecture
+
+All PHP code lives under `Primexcalibur\Checkin`. Daily, automatic and supplementary check-in enter `Service\CheckInService`, which owns the user lock and transaction, creates a `Model\CheckinRecord`, applies balance/card changes and updates totals and streaks. The history API reads those records. `Service\CheckinCardService` handles card issuance separately.
+
+Both successful operations dispatch `Event\CheckedIn` after their transaction succeeds. The event contains `user`, `record` and `supplementCount` (zero for normal check-in). Third-party PHP integrations should use this event; the old extensions' PHP classes and events are not exported. The HTTP routes and stored data remain compatible.
+
+The forum and admin each have one initializer. Both check-in actions update Flarum's shared user and check-in record models, so the button, profile and calendar reflect the same state. The admin has one settings page. Legacy database columns and settings keys are intentionally retained; aliases preserve descriptions already stored in the money ledger.
+
+## Updating the earlier combined package
+
+If `primexcalibur/checkin-with-history` is already installed from the previous repository, update the Composer repository URL using the installation command above and require `^1.0`. Its extension ID and migration ID remain unchanged, so existing records, settings and migration ownership are retained. Then run `php flarum migrate`, `php flarum assets:publish` and `php flarum cache:clear`.
 
 ## Development
 

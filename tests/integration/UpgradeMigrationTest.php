@@ -1,6 +1,6 @@
 <?php
 
-namespace Ziven\DailyCheckin\Tests\integration;
+namespace Primexcalibur\Checkin\Tests\integration;
 
 use Flarum\Testing\integration\TestCase;
 use Illuminate\Database\Connectors\MySqlConnector;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Ziven\DailyCheckin\Tests\integration;
+namespace Primexcalibur\Checkin\Tests\integration;
 
 use Carbon\Carbon;
 use Carbon\CarbonImmutable;
@@ -131,7 +131,7 @@ class CheckInIntegrationTest extends TestCase
         $this->assertEquals(5.5, (float) $user->money);
         $this->assertNotNull($historyEntry);
         $this->assertSame('DAILY_CHECKIN_REWARD', $historyEntry->source);
-        $this->assertSame('ziven-checkin.forum.money-history.checkin-reward', $historyEntry->source_key);
+        $this->assertSame('primexcalibur-checkin-with-history.forum.money-history.checkin-reward', $historyEntry->source_key);
         $this->assertEquals(0.0, (float) $historyEntry->balance_before);
         $this->assertEquals(5.5, (float) $historyEntry->balance_after);
     }

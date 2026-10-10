@@ -1,12 +1,12 @@
 <?php
 
-namespace Ziven\DailyCheckin\Support;
+namespace Primexcalibur\Checkin\Support;
 
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\User;
-use Mattoid\CheckinHistory\Model\UserCheckinHistory;
+use Primexcalibur\Checkin\Model\CheckinRecord;
 
 class CheckInStateResolver
 {
@@ -14,26 +14,18 @@ class CheckInStateResolver
     {
     }
 
-    public function getCheckInState(User $user): array
+    public function canCheckIn(User $user, ?CarbonImmutable $forumTime = null): bool
     {
-        $currentForumTime = $this->currentForumTime();
-        $currentForumDay = $currentForumTime->startOfDay();
-        $lastCheckInTime = $this->normalizeStoredDateTime($user->last_checkin_time);
-        $lastCheckInDay = $lastCheckInTime?->startOfDay();
+        $today = ($forumTime ?? $this->currentForumTime())->toDateString();
+        $lastDate = $this->lastCheckInDate($user);
 
-        return [
-            'currentForumTime' => $currentForumTime,
-            'lastCheckInTime' => $lastCheckInTime,
-            'canCheckin' => ($lastCheckInDay === null || $currentForumDay->greaterThan($lastCheckInDay))
-                && ! $this->hasCheckInOn($user, $currentForumDay->toDateString()),
-            'canCheckinContinuous' => $lastCheckInDay !== null && $lastCheckInDay->equalTo($currentForumDay->subDay()),
-        ];
+        return ($lastDate === null || $today > $lastDate) && ! $this->hasCheckInOn($user, $today);
     }
 
     public function hasCheckInOn(User $user, string $date): bool
     {
         return $this->lastCheckInDate($user) === $date
-            || UserCheckinHistory::query()
+            || CheckinRecord::query()
                 ->where('user_id', $user->id)->where('last_checkin_date', $date)->exists();
     }
 

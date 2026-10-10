@@ -5,13 +5,16 @@ import extractText from 'flarum/common/utils/extractText';
 import dynamicallyLoadLib from '../utils/dynamicallyLoadLib';
 import SupplementCheckinModal from '../modal/SupplementCheckinModal';
 import type Mithril from 'mithril';
+import type { ApiPayloadPlural } from 'flarum/common/Store';
+import CheckinRecord from '../../common/models/CheckinRecord';
+import { forumTime } from '../utils/checkin';
 
 declare const FullCalendar: any;
 
 export default class CheckinHistoryPage extends UserPage {
   calendar: any = null;
   removed = false;
-  historyData: any = null;
+  records: CheckinRecord[] = [];
   loadingHistory: boolean = false;
 
   oninit(vnode: Mithril.Vnode<any, this>): void {
@@ -30,15 +33,11 @@ export default class CheckinHistoryPage extends UserPage {
     return isSelf || canViewOthers;
   }
 
-  show(user: any): void {
-    super.show(user);
-  }
-
   content(): Mithril.Children {
     if (!this.canViewHistory()) {
       return (
         <div className="CheckinHistoryUserPage CheckinHistoryUserPage--noPermission Placeholder">
-          <p>{app.translator.trans('mattoid-daily-check-in-history.forum.page.permission-denied')}</p>
+          <p>{app.translator.trans('primexcalibur-checkin-with-history.forum.page.permission-denied')}</p>
         </div>
       );
     }
@@ -85,7 +84,7 @@ export default class CheckinHistoryPage extends UserPage {
     const userId = this.user ? this.user.id() : null;
 
     try {
-      const response = await app.request<any>({
+      const response = await app.request<ApiPayloadPlural>({
         method: 'GET',
         url: `${app.forum.attribute('apiUrl')}/checkin/history`,
         params: {
@@ -96,14 +95,16 @@ export default class CheckinHistoryPage extends UserPage {
         },
       });
 
-      this.historyData = response;
+      this.records = app.store.pushPayload<CheckinRecord[]>(response);
       this.loadingHistory = false;
       m.redraw();
 
-      if (response && Array.isArray(response.data)) {
-        return response.data.map((item: any) => item.attributes);
-      }
-      return [];
+      return this.records.map((record) => ({
+        id: record.id(),
+        start: record.date(),
+        color: record.color(),
+        allDay: true,
+      }));
     } catch (e) {
       this.loadingHistory = false;
       m.redraw();
@@ -120,7 +121,7 @@ export default class CheckinHistoryPage extends UserPage {
       await dynamicallyLoadLib('fullcalendar');
       await dynamicallyLoadLib('fullcalendarLocales');
     } catch {
-      app.alerts.show({ type: 'error' }, app.translator.trans('mattoid-daily-check-in-history.forum.page.load-failed'));
+      app.alerts.show({ type: 'error' }, app.translator.trans('primexcalibur-checkin-with-history.forum.page.load-failed'));
       return;
     }
 
@@ -139,8 +140,9 @@ export default class CheckinHistoryPage extends UserPage {
     this.calendar = new FullCalendar.Calendar(calendarEl, {
       locale: app.translator.getLocale(),
       timeZone: 'UTC',
-      now: () => this.forumTime(),
-      allDayText: extractText(app.translator.trans('mattoid-daily-check-in-history.forum.page.today')),
+      now: forumTime,
+      initialDate: app.forum.attribute('checkinToday'),
+      allDayText: extractText(app.translator.trans('primexcalibur-checkin-with-history.forum.page.today')),
       initialView: 'dayGridMonth',
       dateClick: (info: any) => {
         openModal(info);
@@ -156,30 +158,22 @@ export default class CheckinHistoryPage extends UserPage {
       return false;
     }
 
-    const today = this.forumTime().toISOString().slice(0, 10);
+    const today = forumTime().toISOString().slice(0, 10);
     if (info.dateStr > today) {
       return false;
     }
 
-    const list = (this.historyData && this.historyData.data) || [];
-    for (const item of list) {
-      if (item.attributes && item.attributes.start === info.dateStr) {
-        return false;
-      }
+    if (this.records.some((record) => record.date() === info.dateStr)) {
+      return false;
     }
 
     app.modal.show(SupplementCheckinModal, {
-      info,
+      date: info.dateStr,
       callback: () => {
         if (this.calendar) {
           this.calendar.refetchEvents();
         }
       },
     });
-  }
-
-  forumTime(): Date {
-    const offset = Number(app.forum.attribute('forumCheckinTimeZone') || 0);
-    return new Date(Date.now() + offset * 3600000);
   }
 }

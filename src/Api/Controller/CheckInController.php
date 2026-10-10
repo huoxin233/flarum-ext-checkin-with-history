@@ -1,13 +1,13 @@
 <?php
 
-namespace Ziven\DailyCheckin\Api\Controller;
+namespace Primexcalibur\Checkin\Api\Controller;
 
 use Flarum\Api\Controller\AbstractShowController;
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Http\RequestUtil;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
-use Ziven\DailyCheckin\Service\CheckInService;
+use Primexcalibur\Checkin\Service\CheckInService;
 
 class CheckInController extends AbstractShowController
 {

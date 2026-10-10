@@ -1,13 +1,15 @@
 <?php
 
-namespace Ziven\DailyCheckin\Tests\integration;
+namespace Primexcalibur\Checkin\Tests\integration;
 
 use Carbon\CarbonImmutable;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
-use Mattoid\CheckinHistory\Model\UserCheckinHistory;
+use Illuminate\Contracts\Events\Dispatcher;
+use Primexcalibur\Checkin\Event\CheckedIn;
+use Primexcalibur\Checkin\Model\CheckinRecord;
 
 class MergedCheckinTest extends TestCase
 {
@@ -50,7 +52,7 @@ class MergedCheckinTest extends TestCase
 
     private function record(string $date, int $continuous): void
     {
-        UserCheckinHistory::query()->create([
+        CheckinRecord::query()->create([
             'user_id' => 2, 'type' => 0, 'last_checkin_date' => $date,
             'last_checkin_time' => $date.' 12:00:00', 'total_checkin_count' => $continuous,
             'total_continuous_checkin_count' => $continuous,
@@ -67,8 +69,8 @@ class MergedCheckinTest extends TestCase
         $this->assertSame(422, $this->checkin()->getStatusCode());
         $this->assertSame(1, (int) User::find(2)->total_checkin_count);
         $this->assertEquals(5, User::find(2)->money);
-        $this->assertSame(1, UserCheckinHistory::query()->count());
-        $this->assertSame(1, UserCheckinHistory::first()->type);
+        $this->assertSame(1, CheckinRecord::query()->count());
+        $this->assertSame(1, CheckinRecord::first()->type);
         $this->assertSame(1, $this->database()->table('user_money_history')->count());
     }
 
@@ -78,7 +80,7 @@ class MergedCheckinTest extends TestCase
         $this->assertSame(200, $this->checkin()->getStatusCode());
         $this->assertSame(422, $this->supplement('2026-04-11')->getStatusCode());
         $this->assertEquals(7, User::find(2)->money);
-        $this->assertSame(1, UserCheckinHistory::query()->count());
+        $this->assertSame(1, CheckinRecord::query()->count());
     }
 
     /** @test */
@@ -89,7 +91,7 @@ class MergedCheckinTest extends TestCase
         $this->record('2026-04-10', 1);
         User::whereKey(2)->update(['last_checkin_time' => '2026-04-10 12:00:00', 'total_continuous_checkin_count' => 1]);
         $this->assertSame(201, $this->supplement('2026-04-02')->getStatusCode());
-        $this->assertSame(10, UserCheckinHistory::where('last_checkin_date', '2026-04-03')->first()->total_continuous_checkin_count);
+        $this->assertSame(10, CheckinRecord::where('last_checkin_date', '2026-04-03')->first()->total_continuous_checkin_count);
         $this->assertSame(1, (int) User::find(2)->total_continuous_checkin_count);
         $this->assertSame(200, $this->checkin()->getStatusCode());
         $this->assertSame(2, (int) User::find(2)->total_continuous_checkin_count);
@@ -115,8 +117,48 @@ class MergedCheckinTest extends TestCase
         $this->assertSame(500, $this->checkin()->getStatusCode());
         $this->assertSame(0, (int) User::find(2)->total_checkin_count);
         $this->assertEquals(0, User::find(2)->money);
-        $this->assertSame(0, UserCheckinHistory::query()->count());
+        $this->assertSame(0, CheckinRecord::query()->count());
         $this->assertSame(0, $this->database()->table('user_money_history')->count());
+    }
+
+    /** @test */
+    public function failed_supplement_rolls_back_the_card_reward_and_record_without_emitting_an_event(): void
+    {
+        User::whereKey(2)->update(['checkin_card' => 2, 'money' => 10]);
+        $dispatched = false;
+        $this->app()->getContainer()->make(Dispatcher::class)->listen(CheckedIn::class, function () use (&$dispatched) {
+            $dispatched = true;
+        });
+        User::saved(function (User $user) {
+            if ($user->id === 2) {
+                throw new \RuntimeException('Simulated save failure');
+            }
+        });
+
+        $this->assertSame(500, $this->supplement('2026-04-10')->getStatusCode());
+        $user = User::find(2);
+        $this->assertSame(2, (int) $user->checkin_card);
+        $this->assertEquals(10, $user->money);
+        $this->assertSame(0, (int) $user->total_checkin_count);
+        $this->assertSame(0, CheckinRecord::query()->count());
+        $this->assertSame(0, $this->database()->table('user_money_history')->count());
+        $this->assertFalse($dispatched);
+    }
+
+    /** @test */
+    public function normal_and_supplementary_checkin_publish_the_same_event_with_the_committed_record(): void
+    {
+        $types = [];
+        $this->app()->getContainer()->make(Dispatcher::class)->listen(CheckedIn::class, function (CheckedIn $event) use (&$types) {
+            $types[] = $event->record->type;
+            $this->assertTrue(CheckinRecord::whereKey($event->record->id)->exists());
+            $this->assertEquals($event->user->money, User::find($event->user->id)->money);
+        });
+
+        $this->assertSame(200, $this->checkin()->getStatusCode());
+        $this->assertSame(201, $this->supplement('2026-04-10')->getStatusCode());
+        $this->assertSame([0, 1], $types);
+        $this->assertSame(2, (int) User::find(2)->total_continuous_checkin_count);
     }
 
     /** @test */
@@ -125,7 +167,7 @@ class MergedCheckinTest extends TestCase
         CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-04-11 16:01:00', 'UTC'));
         $this->app()->getContainer()->make(SettingsRepositoryInterface::class)->set('ziven-forum-checkin.checkinTimeZone', 8);
         $this->assertSame(200, $this->checkin()->getStatusCode());
-        $this->assertSame('2026-04-12', UserCheckinHistory::first()->last_checkin_date);
+        $this->assertSame('2026-04-12', CheckinRecord::first()->last_checkin_date);
         $response = $this->send($this->request('GET', '/api', ['authenticatedAs' => 2]));
         $payload = json_decode((string) $response->getBody(), true);
         $this->assertSame('2026-04-12', $payload['data']['attributes']['checkinToday']);
