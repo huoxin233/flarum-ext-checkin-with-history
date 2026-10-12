@@ -25,7 +25,16 @@ async function checkIn(): Promise<void> {
       checkinMessages().forEach((message) => app.alerts.show({ type: 'success' }, message));
     }
   } catch {
-    if (promptType === 2) app.modal.show(CheckinResultModal, { success: false });
+    if (promptType === 2) {
+      app.modal.show(CheckinResultModal, { success: false });
+    } else {
+      app.alerts.show(
+        { type: 'error' },
+        `${app.translator.trans('primexcalibur-checkin-with-history.forum.check-in-failed')} ${app.translator.trans(
+          'primexcalibur-checkin-with-history.forum.try-again-later'
+        )}`
+      );
+    }
   } finally {
     submitting = false;
     m.redraw();
