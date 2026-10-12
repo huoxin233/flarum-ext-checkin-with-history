@@ -39,31 +39,31 @@ function getResource(key: 'fullcalendar' | 'locales', defaultPath: string | stri
   return { url: defaultPath };
 }
 
-const getLibs = (): Record<string, LibConfig> => ({
-  fullcalendar: {
-    js: getResource('fullcalendar', [
-      `${app.forum.attribute('assetsBaseUrl')}/extensions/primexcalibur-checkin-with-history/dist/@fullcalendar/core@6.1.8/index.global.min.js`,
-      `${app.forum.attribute('assetsBaseUrl')}/extensions/primexcalibur-checkin-with-history/dist/@fullcalendar/daygrid@6.1.8/index.global.min.js`,
-      `${app.forum.attribute(
-        'assetsBaseUrl'
-      )}/extensions/primexcalibur-checkin-with-history/dist/@fullcalendar/interaction@6.1.8/index.global.min.js`,
-      `${app.forum.attribute('assetsBaseUrl')}/extensions/primexcalibur-checkin-with-history/dist/@fullcalendar/list@6.1.8/index.global.min.js`,
-    ]),
-    loaded: () =>
-      typeof FullCalendar !== 'undefined' &&
-      Boolean(FullCalendar.Calendar) &&
-      ['@fullcalendar/daygrid', '@fullcalendar/interaction', '@fullcalendar/list'].every((name) =>
-        FullCalendar.globalPlugins.some((plugin: any) => plugin.name === name)
-      ),
-  },
-  fullcalendarLocales: {
-    js: getResource(
-      'locales',
-      `${app.forum.attribute('assetsBaseUrl')}/extensions/primexcalibur-checkin-with-history/dist/@fullcalendar/core@6.1.8/locales-all.global.min.js`
-    ),
-    loaded: () => typeof FullCalendar !== 'undefined' && Boolean(FullCalendar.globalLocales && FullCalendar.globalLocales.length > 2),
-  },
-});
+const getLibs = (): Record<string, LibConfig> => {
+  const basePath = (app.forum.attribute<string>('basePath') || '').replace(/\/+$/, '');
+  const assetRoot = `${basePath}/assets/extensions/primexcalibur-checkin-with-history/dist/@fullcalendar`;
+
+  return {
+    fullcalendar: {
+      js: getResource('fullcalendar', [
+        `${assetRoot}/core@6.1.8/index.global.min.js`,
+        `${assetRoot}/daygrid@6.1.8/index.global.min.js`,
+        `${assetRoot}/interaction@6.1.8/index.global.min.js`,
+        `${assetRoot}/list@6.1.8/index.global.min.js`,
+      ]),
+      loaded: () =>
+        typeof FullCalendar !== 'undefined' &&
+        Boolean(FullCalendar.Calendar) &&
+        ['@fullcalendar/daygrid', '@fullcalendar/interaction', '@fullcalendar/list'].every((name) =>
+          FullCalendar.globalPlugins.some((plugin: any) => plugin.name === name)
+        ),
+    },
+    fullcalendarLocales: {
+      js: getResource('locales', `${assetRoot}/core@6.1.8/locales-all.global.min.js`),
+      loaded: () => typeof FullCalendar !== 'undefined' && Boolean(FullCalendar.globalLocales && FullCalendar.globalLocales.length > 2),
+    },
+  };
+};
 
 const scriptLoadingPromises = new Map<string, Promise<void>>();
 
