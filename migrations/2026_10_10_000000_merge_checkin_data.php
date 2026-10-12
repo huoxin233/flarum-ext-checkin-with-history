@@ -33,6 +33,7 @@ return [
                 $table->integer('total_continuous_checkin_count');
                 $table->dateTime('last_checkin_time');
                 $table->unique(['user_id', 'last_checkin_date']);
+                $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             });
         }
 
@@ -57,8 +58,10 @@ return [
 
         if (! $hadCheckin) {
             $connection->table('group_permission')->insertOrIgnore([
-                'group_id' => Group::MEMBER_ID,
-                'permission' => 'checkin.allowCheckIn',
+                ['group_id' => Group::MEMBER_ID, 'permission' => 'checkin.allowCheckIn'],
+                ['group_id' => Group::MEMBER_ID, 'permission' => 'checkin.allowSupplementaryCheckIn'],
+                ['group_id' => Group::MEMBER_ID, 'permission' => 'checkin.queryOthersHistory'],
+                ['group_id' => Group::GUEST_ID, 'permission' => 'checkin.queryOthersHistory'],
             ]);
         }
 
@@ -68,6 +71,16 @@ return [
             'ziven-forum-checkin.checkinSuccessPromptRewardText' => '',
             'ziven-forum-checkin.autoCheckIn' => '0',
             'ziven-forum-checkin.autoCheckInDelay' => '0',
+            'mattoid-forum-checkin.max-supplementary-checkin' => '0',
+            'mattoid-forum-checkin.span-day-checkin' => '1',
+            'mattoid-forum-checkin.checkin-range' => '0',
+            'mattoid-forum-checkin.reward-money' => '0',
+            'mattoid-forum-checkin.consumption' => '0',
+            'mattoid-forum-checkin.checkin-increase' => '0',
+            'mattoid-forum-checkin.checkin-card' => '0',
+            'mattoid-forum-checkin.checkin-position' => '0',
+            'mattoid-forum-checkin.checkin-color' => '#2756c6',
+            'mattoid-forum-checkin.supplementary-color' => '#ff9900',
         ] as $key => $value) {
             $connection->table('settings')->insertOrIgnore(compact('key', 'value'));
         }
