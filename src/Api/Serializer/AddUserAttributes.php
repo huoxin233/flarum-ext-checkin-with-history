@@ -20,7 +20,7 @@ class AddUserAttributes
         $attributes['totalCheckinCount'] = (int) $user->total_checkin_count;
 
         if (! $actor->isGuest() && $actor->id === $user->id) {
-            $attributes['canCheckin'] = $this->stateResolver->canCheckIn($user);
+            $attributes['canCheckin'] = (bool) ($actor->can('checkin.allowCheckIn', $user) && $this->stateResolver->canCheckIn($user));
         }
 
         if (! $actor->isGuest() && ($actor->id === $user->id || $actor->can('checkin.issuanceOfSupplementaryCards'))) {

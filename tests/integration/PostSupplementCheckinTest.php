@@ -2,6 +2,7 @@
 
 namespace Primexcalibur\Checkin\Tests\integration;
 
+use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -634,5 +635,33 @@ class PostSupplementCheckinTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
         $this->assertTrue($dispatched);
+    }
+
+    /**
+     * @test
+     */
+    public function suspended_user_is_denied_supplement_checkin()
+    {
+        $this->prepareDatabase([
+            'group_permission' => [
+                ['permission' => 'checkin.allowSupplementaryCheckIn', 'group_id' => 3],
+            ],
+        ]);
+
+        $this->database()->table('users')
+            ->where('id', 2)
+            ->update(['suspended_until' => Carbon::now()->addDay()]);
+
+        $pastDate = date('Y-m-d', strtotime('-1 day'));
+
+        $response = $this->send(
+            $this->request('POST', '/api/supplement/checkin', [
+                'authenticatedAs' => 2,
+            ])->withParsedBody([
+                'date' => $pastDate,
+            ])
+        );
+
+        $this->assertEquals(403, $response->getStatusCode());
     }
 }

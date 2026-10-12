@@ -39,9 +39,8 @@ class CheckInService
 
     public function supplement(User $actor, string $date): CheckinRecord
     {
-        if ($actor->isGuest() || ! $actor->can('checkin.allowSupplementaryCheckIn')) {
-            throw new PermissionDeniedException();
-        }
+        $actor->assertRegistered();
+        $actor->assertCan('checkin.allowSupplementaryCheckIn', $actor);
 
         return $this->perform($actor, $date);
     }

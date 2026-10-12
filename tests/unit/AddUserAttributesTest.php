@@ -16,12 +16,13 @@ class AddUserAttributesTest extends TestCase
      */
     public function adds_checkin_card_for_self()
     {
+        $user = new User();
+        $user->setRawAttributes(['id' => 1, 'checkin_card' => 5]);
+
         $actor = m::mock(User::class);
         $actor->shouldReceive('isGuest')->andReturn(false);
         $actor->shouldReceive('getAttribute')->with('id')->andReturn(1);
-
-        $user = new User();
-        $user->setRawAttributes(['id' => 1, 'checkin_card' => 5]);
+        $actor->shouldReceive('can')->with('checkin.allowCheckIn', $user)->andReturn(true);
 
         $serializer = m::mock(UserSerializer::class);
         $serializer->shouldReceive('getActor')->andReturn($actor);
@@ -33,6 +34,7 @@ class AddUserAttributesTest extends TestCase
 
         $this->assertArrayHasKey('checkinCard', $attributes);
         $this->assertEquals(5, $attributes['checkinCard']);
+        $this->assertTrue($attributes['canCheckin']);
     }
 
     /**
@@ -104,5 +106,29 @@ class AddUserAttributesTest extends TestCase
         $attributes = $adder($serializer, $user, []);
 
         $this->assertArrayNotHasKey('checkinCard', $attributes);
+    }
+
+    /**
+     * @test
+     */
+    public function disallows_can_checkin_when_actor_permission_denied()
+    {
+        $user = new User();
+        $user->setRawAttributes(['id' => 1]);
+
+        $actor = m::mock(User::class);
+        $actor->shouldReceive('isGuest')->andReturn(false);
+        $actor->shouldReceive('getAttribute')->with('id')->andReturn(1);
+        $actor->shouldReceive('can')->with('checkin.allowCheckIn', $user)->andReturn(false);
+
+        $serializer = m::mock(UserSerializer::class);
+        $serializer->shouldReceive('getActor')->andReturn($actor);
+
+        $resolver = m::mock(CheckInStateResolver::class);
+        $resolver->shouldReceive('canCheckIn')->andReturn(true);
+        $adder = new AddUserAttributes($resolver);
+        $attributes = $adder($serializer, $user, []);
+
+        $this->assertFalse($attributes['canCheckin']);
     }
 }
