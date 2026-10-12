@@ -17,7 +17,7 @@ return [
         ->js(__DIR__.'/js/dist/admin.js')->css(__DIR__.'/less/admin.less'),
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')->css(__DIR__.'/less/forum.less')
-        ->route('/u/{username}/checkin/history', 'primexcalibur-checkin-with-history.forum.page.link-name'),
+        ->route('/u/{username}/checkin/history', 'user.checkin.history'),
     new Extend\Locales(__DIR__.'/locale'),
     (new Extend\Policy())->modelPolicy(User::class, UserPolicy::class),
     (new Extend\Routes('api'))
