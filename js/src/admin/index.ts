@@ -26,15 +26,6 @@ app.initializers.add('primexcalibur-checkin-with-history', () => {
     .registerPermission(
       {
         icon: 'fas fa-id-card',
-        label: app.translator.trans('primexcalibur-checkin-with-history.admin.settings.issuance-of-supplementary-cards'),
-        permission: 'checkin.issuanceOfSupplementaryCards',
-      },
-      'moderate',
-      90
-    )
-    .registerPermission(
-      {
-        icon: 'fas fa-id-card',
         label: app.translator.trans('primexcalibur-checkin-with-history.admin.settings.query-others-history'),
         permission: 'checkin.queryOthersHistory',
         allowGuest: true,

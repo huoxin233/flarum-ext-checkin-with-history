@@ -8,7 +8,6 @@ use Primexcalibur\Checkin\Access\UserPolicy;
 use Primexcalibur\Checkin\Api\Controller\CheckInController;
 use Primexcalibur\Checkin\Api\Controller\ListCheckinHistoryController;
 use Primexcalibur\Checkin\Api\Controller\PostCheckinHistoryController;
-use Primexcalibur\Checkin\Api\Controller\PostGiveCheckinCardController;
 use Primexcalibur\Checkin\Api\Serializer\AddForumAttributes;
 use Primexcalibur\Checkin\Api\Serializer\AddUserAttributes;
 
@@ -23,8 +22,7 @@ return [
     (new Extend\Routes('api'))
         ->post('/checkin', 'checkin.create', CheckInController::class)
         ->get('/checkin/history', 'checkin.history', ListCheckinHistoryController::class)
-        ->post('/supplement/checkin', 'checkin.supplement', PostCheckinHistoryController::class)
-        ->post('/give/checkin/card', 'checkin.give-cards', PostGiveCheckinCardController::class),
+        ->post('/supplement/checkin', 'checkin.supplement', PostCheckinHistoryController::class),
     (new Extend\ApiSerializer(UserSerializer::class))->attributes(AddUserAttributes::class),
     (new Extend\ApiSerializer(ForumSerializer::class))->attributes(AddForumAttributes::class),
     // Persisted keys are shared with the original extensions so upgrades retain their settings.

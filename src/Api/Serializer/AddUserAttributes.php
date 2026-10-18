@@ -23,7 +23,7 @@ class AddUserAttributes
             $attributes['canCheckin'] = (bool) ($actor->can('checkin.allowCheckIn', $user) && $this->stateResolver->canCheckIn($user));
         }
 
-        if (! $actor->isGuest() && ($actor->id === $user->id || $actor->can('checkin.issuanceOfSupplementaryCards'))) {
+        if (! $actor->isGuest() && $actor->id === $user->id) {
             $attributes['checkinCard'] = (int) $user->checkin_card;
         }
 

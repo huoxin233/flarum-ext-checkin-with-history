@@ -1,8 +1,6 @@
 import app from 'flarum/admin/app';
 import ExtensionPage from 'flarum/admin/components/ExtensionPage';
-import Button from 'flarum/common/components/Button';
 import Switch from 'flarum/common/components/Switch';
-import GiveCheckinCardsModal from './GiveCheckinCardsModal';
 import type Mithril from 'mithril';
 
 export default class CheckinSettingsPage extends ExtensionPage {
@@ -64,21 +62,6 @@ export default class CheckinSettingsPage extends ExtensionPage {
                 help: app.translator.trans('primexcalibur-checkin-with-history.admin.settings.check-in-success-prompt-example-reward-text'),
                 type: 'text',
               })}
-            </fieldset>
-            <fieldset>
-              <legend>{app.translator.trans('primexcalibur-checkin-with-history.admin.sections.quick-actions')}</legend>
-              <div className="Form-group">
-                <Button
-                  className="Button Button--primary"
-                  icon="fas fa-gift"
-                  onclick={() => {
-                    app.modal.show(GiveCheckinCardsModal);
-                  }}
-                >
-                  {app.translator.trans('primexcalibur-checkin-with-history.admin.settings.complimentary-supplementary-card')}
-                </Button>
-                <div className="helpText">{app.translator.trans('primexcalibur-checkin-with-history.admin.sections.quick-actions-desc')}</div>
-              </div>
             </fieldset>
 
             <fieldset>
