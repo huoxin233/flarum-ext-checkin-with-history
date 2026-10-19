@@ -8,18 +8,15 @@ primexcalibur-checkin-with-history:
     money-history:
       checkin-reward: 'Daily check-in reward'
       supplementary-checkin-reward: 'Supplementary check-in reward'
-      supplementary-checkin-cost: 'Supplementary check-in fee'
     page:
       link-name: 'Checkin History'
       title: 'Checkin History'
-      checkin-card: 'Checkin Card'
-      checkin-card-count: 'Check-in Cards: {count}'
       today: Today
       load-failed: 'The check-in calendar could not load. Reload the page to try again.'
       permission-denied: 'You do not have permission to view this user''s check-in history.'
     modal:
       checkin: Check-in
-      supplement-checkin-desc: 'Are you sure you want to supplement the check-in for {dateStr}?'
+      supplement-checkin-desc: 'Are you sure you want to supplement the check-in for {dateStr}? (1 Check-in Card will be used)'
       submit: Confirm
   admin:
     settings:
@@ -42,17 +39,10 @@ primexcalibur-checkin-with-history:
       span-day-checkin: 'Span Day Check-in'
       span-day-checkin-requirement: 'When enabled, unsigned date records are allowed after the supplementary check-in date.'
       allow-supplementary-check-in: 'Allow Supplementary Check-in'
-      issuance-of-supplementary-cards: 'Issuance of Supplementary Cards'
-      complimentary-supplementary-card: 'Complimentary Supplementary Card'
       query-others-history: 'View Others'' Records'
-      consumption: 'Check-in Cost'
       reward-money: 'Reward Money'
       checkin-range: 'Supplementary Check-in Range'
       checkin-range-requirement: 'Allow supplementary check-in within the set number of days'
-      checkin-card: 'Only for Check-in Card'
-      checkin-card-requirement: 'When enabled, money will not be consumed, but supplementary check-in is disallowed when cards are insufficient.'
-      checkin-increase: 'Check-in Cost Increment (%)'
-      checkin-increase-requirement: 'When users continuously check in, the fee for each check-in will increase. This configuration does not apply to check-in cards!'
       checkin-color: 'Check-in Color'
       supplementary-color: 'Supplementary Check-in Color'
       min-supplementary-date: 'Earliest Supplementary Check-in Date'
@@ -60,20 +50,10 @@ primexcalibur-checkin-with-history:
       cdn-fullcalendar-sri: 'FullCalendar JS SRI Hash'
       cdn-locales-url: 'FullCalendar Locales JS URL'
       cdn-locales-sri: 'FullCalendar Locales JS SRI Hash'
-      submit-give: Grant
-      user-all: 'All Users'
-      give-number: Quantity
-      username: Username
-      user-help: 'Separate multiple usernames by comma, Chinese comma, vertical bar, or space.'
-      range-help: 'Checked: Username cannot be edited. Unchecked: Username is required.'
-    modal:
-      give-success: 'Successfully granted check-in cards to {count} user(s).'
     sections:
       daily: 'Daily Check-in'
-      quick-actions: 'Quick Actions'
-      quick-actions-desc: 'Batch grant check-in cards to specific users or all users.'
       rules: 'Check-in Rules & Limits'
-      economy: 'Economy & Costs'
+      economy: 'Economy & Rewards'
       appearance: 'Appearance & Display'
       cdn: 'Static Assets & CDN'
       cdn-help: 'Custom full download URLs and SRI hashes for FullCalendar. Leave empty to use local forum assets.'
@@ -82,14 +62,11 @@ primexcalibur-checkin-with-history:
       already-checked-in: 'Check-in failed. A check-in record already exists for {date}.'
       date-required: 'The date field is required.'
       invalid-date: 'Invalid date format. Expected YYYY-MM-DD.'
-      invalid-amount: 'Amount must be greater than 0.'
-      empty-usernames: 'Please provide at least one username.'
-      invalid-usernames: 'Please provide valid usernames.'
       checkin-range: 'The supplementary check-in request exceeds the valid range, cannot exceed {day} days.'
       max-supplementary-checkin: 'Continuous supplementary check-in exceeds the limit of {day} days.'
       span-day-checkin: 'Check-in failed. There are unsigned dates after {date}, span-day check-in is not allowed.'
       insufficient-balance: 'Insufficient balance, check-in failed.'
-      insufficient-checkin-card: 'Insufficient check-in cards.'
+      insufficient-checkin-card: 'Check-in failed. You do not have any Check-in Cards. Please purchase one from the Store.'
       min-supplementary-date: 'Cannot supplement records prior to {day}.'
       greater-than-today: 'The check-in date cannot be greater than today.'
 ziven-checkin:
@@ -100,4 +77,3 @@ mattoid-daily-check-in-history:
   forum:
     money-history:
       supplementary-checkin-reward: '=> primexcalibur-checkin-with-history.forum.money-history.supplementary-checkin-reward'
-      supplementary-checkin-cost: '=> primexcalibur-checkin-with-history.forum.money-history.supplementary-checkin-cost'

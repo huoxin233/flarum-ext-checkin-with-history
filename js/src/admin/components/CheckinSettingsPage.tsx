@@ -7,7 +7,6 @@ export default class CheckinSettingsPage extends ExtensionPage {
   content(vnode?: Mithril.VnodeDOM<any, this>): JSX.Element {
     const checkinColor = this.setting('mattoid-forum-checkin.checkin-color', '#2756c6')();
     const supplementColor = this.setting('mattoid-forum-checkin.supplementary-color', '#ff9900')();
-    const checkinCardOnly = this.setting('mattoid-forum-checkin.checkin-card')() === '1';
 
     return (
       <div className="ExtensionPage-settings CheckinSettingsPage">
@@ -111,49 +110,9 @@ export default class CheckinSettingsPage extends ExtensionPage {
               <legend>{app.translator.trans('primexcalibur-checkin-with-history.admin.sections.economy')}</legend>
 
               <div className="Form-group">
-                <Switch
-                  state={checkinCardOnly}
-                  onchange={(val: boolean) => {
-                    this.setting('mattoid-forum-checkin.checkin-card')(val ? '1' : '0');
-                  }}
-                >
-                  {app.translator.trans('primexcalibur-checkin-with-history.admin.settings.checkin-card')}
-                </Switch>
-                <div className="helpText">{app.translator.trans('primexcalibur-checkin-with-history.admin.settings.checkin-card-requirement')}</div>
-              </div>
-
-              <div className="CheckinAdminGrid">
-                <div className="Form-group">
-                  <label>{app.translator.trans('primexcalibur-checkin-with-history.admin.settings.consumption')}</label>
-                  <input
-                    className="FormControl"
-                    type="number"
-                    bidi={this.setting('mattoid-forum-checkin.consumption', '0')}
-                    min="0"
-                    disabled={checkinCardOnly}
-                  />
-                  <div className="helpText">{app.translator.trans('primexcalibur-checkin-with-history.admin.settings.reward-money-requirement')}</div>
-                </div>
-
-                <div className="Form-group">
-                  <label>{app.translator.trans('primexcalibur-checkin-with-history.admin.settings.reward-money')}</label>
-                  <input className="FormControl" type="number" bidi={this.setting('mattoid-forum-checkin.reward-money', '0')} min="0" />
-                  <div className="helpText">{app.translator.trans('primexcalibur-checkin-with-history.admin.settings.reward-money-requirement')}</div>
-                </div>
-              </div>
-
-              <div className="Form-group">
-                <label>{app.translator.trans('primexcalibur-checkin-with-history.admin.settings.checkin-increase')}</label>
-                <input
-                  className="FormControl"
-                  type="number"
-                  bidi={this.setting('mattoid-forum-checkin.checkin-increase', '0')}
-                  min="0"
-                  disabled={checkinCardOnly}
-                />
-                <div className="helpText">
-                  {app.translator.trans('primexcalibur-checkin-with-history.admin.settings.checkin-increase-requirement')}
-                </div>
+                <label>{app.translator.trans('primexcalibur-checkin-with-history.admin.settings.reward-money')}</label>
+                <input className="FormControl" type="number" bidi={this.setting('mattoid-forum-checkin.reward-money', '0')} min="0" />
+                <div className="helpText">{app.translator.trans('primexcalibur-checkin-with-history.admin.settings.reward-money-requirement')}</div>
               </div>
             </fieldset>
 
