@@ -15,6 +15,7 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\ConnectionInterface;
 use Primexcalibur\Checkin\Event\CheckedIn;
 use Primexcalibur\Checkin\Model\CheckinRecord;
+use Primexcalibur\Checkin\Support\CheckinCardManager;
 use Primexcalibur\Checkin\Support\CheckInStateResolver;
 
 class CheckInService
@@ -22,6 +23,7 @@ class CheckInService
     public function __construct(
         private ConnectionInterface $connection,
         private CheckInStateResolver $stateResolver,
+        private CheckinCardManager $cardManager,
         private SettingsRepositoryInterface $settings,
         private BalanceManager $balances,
         private Translator $translator,
@@ -67,7 +69,12 @@ class CheckInService
 
             if ($supplementary) {
                 $supplementCount = $this->validateSupplementSequence($user, $date, $forumTime) + 1;
-                $amount = $this->supplementBalanceDelta($user, $supplementCount);
+
+                if (! $this->cardManager->consumeCard($user)) {
+                    throw $this->error('api.error.insufficient-checkin-card');
+                }
+
+                $amount = (float) $this->settings->get('mattoid-forum-checkin.reward-money', 0);
             } else {
                 $amount = (float) $this->settings->get('ziven-forum-checkin.checkinRewardMoney', 0);
             }
@@ -121,41 +128,36 @@ class CheckInService
             }
         }
 
+        $max = (int) $this->settings->get('mattoid-forum-checkin.max-supplementary-checkin', 0);
+        $window = $max > 0 ? $max : (int) $this->settings->get('mattoid-forum-checkin.checkin-range', 30);
+        if ($window <= 0) {
+            $window = 30;
+        }
+
+        $minDate = $day->subDays($window)->toDateString();
+        $maxDate = $day->addDays($window)->toDateString();
+
+        $supplementDates = CheckinRecord::query()
+            ->where('user_id', $user->id)
+            ->where('type', 1)
+            ->whereBetween('last_checkin_date', [$minDate, $maxDate])
+            ->pluck('last_checkin_date')
+            ->flip();
+
         $count = 0;
         foreach ([-1, 1] as $direction) {
             $cursor = $day->addDays($direction);
-            while (CheckinRecord::query()->where('user_id', $user->id)
-                ->where('last_checkin_date', $cursor->toDateString())->where('type', 1)->exists()) {
+            while (isset($supplementDates[$cursor->toDateString()])) {
                 $count++;
                 $cursor = $cursor->addDays($direction);
             }
         }
 
-        $max = (int) $this->settings->get('mattoid-forum-checkin.max-supplementary-checkin', 0);
         if ($max > 0 && $count + 1 > $max) {
             throw $this->error('api.error.max-supplementary-checkin', ['day' => $max]);
         }
 
         return $count;
-    }
-
-    private function supplementBalanceDelta(User $user, int $supplementCount): float
-    {
-        $reward = (float) $this->settings->get('mattoid-forum-checkin.reward-money', 0);
-        if ((int) $user->checkin_card > 0) {
-            $user->checkin_card = (int) $user->checkin_card - 1;
-
-            return $reward;
-        }
-
-        if ((bool) $this->settings->get('mattoid-forum-checkin.checkin-card', false)) {
-            throw $this->error('api.error.insufficient-checkin-card');
-        }
-
-        $cost = (float) $this->settings->get('mattoid-forum-checkin.consumption', 0);
-        $increase = (float) $this->settings->get('mattoid-forum-checkin.checkin-increase', 0);
-
-        return $reward - $cost * (1 + $increase * ($supplementCount - 1) / 100);
     }
 
     private function applyBalanceChange(User $user, float $amount, bool $supplementary): void
@@ -164,21 +166,15 @@ class CheckInService
             return;
         }
 
-        $source = 'DAILY_CHECKIN_REWARD';
-        $description = 'checkin-reward';
-        if ($supplementary) {
-            $source = $amount < 0 ? 'SUPPLEMENTARY_CHECKIN_COST' : 'SUPPLEMENTARY_CHECKIN_REWARD';
-            $description = $amount < 0 ? 'supplementary-checkin-cost' : 'supplementary-checkin-reward';
-        }
+        $source = $supplementary ? 'SUPPLEMENTARY_CHECKIN_REWARD' : 'DAILY_CHECKIN_REWARD';
+        $description = $supplementary ? 'supplementary-checkin-reward' : 'checkin-reward';
 
-        if (! $this->balances->applyBalanceChange(
+        $this->balances->applyBalanceChange(
             $user, $amount, $source,
             'primexcalibur-checkin-with-history.forum.money-history.'.$description,
             ['continuousDays' => (int) $user->total_continuous_checkin_count],
-            $user, preventOverdraft: $supplementary
-        )) {
-            throw $this->error('api.error.insufficient-balance');
-        }
+            $user
+        );
     }
 
     private function recordCheckin(User $user, string $date, bool $supplementary, CarbonImmutable $forumTime): CheckinRecord
@@ -203,11 +199,19 @@ class CheckInService
 
         $endDate = $date;
         $nextDate = CarbonImmutable::parse($date, 'UTC')->addDay();
-        while ($next = CheckinRecord::query()->where('user_id', $user->id)
-            ->where('last_checkin_date', $nextDate->toDateString())->first()) {
+        $subsequent = CheckinRecord::query()
+            ->where('user_id', $user->id)
+            ->where('last_checkin_date', '>=', $nextDate->toDateString())
+            ->orderBy('last_checkin_date', 'asc')
+            ->get();
+
+        foreach ($subsequent as $next) {
+            if ($next->last_checkin_date !== $nextDate->toDateString()) {
+                break;
+            }
             $next->total_continuous_checkin_count = ++$continuous;
             $next->save();
-            $endDate = $nextDate->toDateString();
+            $endDate = $next->last_checkin_date;
             $nextDate = $nextDate->addDay();
         }
 

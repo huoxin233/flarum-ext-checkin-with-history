@@ -5,12 +5,18 @@ namespace Primexcalibur\Checkin\Tests\unit;
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Testing\unit\TestCase;
 use Flarum\User\User;
-use Primexcalibur\Checkin\Api\Serializer\AddUserAttributes;
 use Mockery as m;
+use Primexcalibur\Checkin\Api\Serializer\AddUserAttributes;
+use Primexcalibur\Checkin\Support\CheckinCardManager;
 use Primexcalibur\Checkin\Support\CheckInStateResolver;
 
 class AddUserAttributesTest extends TestCase
 {
+    protected function tearDown(): void
+    {
+        m::close();
+        parent::tearDown();
+    }
     /**
      * @test
      */
@@ -29,7 +35,11 @@ class AddUserAttributesTest extends TestCase
 
         $resolver = m::mock(CheckInStateResolver::class);
         $resolver->shouldReceive('canCheckIn')->andReturn(true);
-        $adder = new AddUserAttributes($resolver);
+
+        $cardManager = m::mock(CheckinCardManager::class);
+        $cardManager->shouldReceive('getAvailableCards')->with($user)->andReturn(5);
+
+        $adder = new AddUserAttributes($resolver, $cardManager);
         $attributes = $adder($serializer, $user, []);
 
         $this->assertArrayHasKey('checkinCard', $attributes);
@@ -53,8 +63,9 @@ class AddUserAttributesTest extends TestCase
         $serializer->shouldReceive('getActor')->andReturn($actor);
 
         $resolver = m::mock(CheckInStateResolver::class);
-        $resolver->shouldReceive('canCheckIn')->andReturn(true);
-        $adder = new AddUserAttributes($resolver);
+        $cardManager = m::mock(CheckinCardManager::class);
+
+        $adder = new AddUserAttributes($resolver, $cardManager);
         $attributes = $adder($serializer, $user, []);
 
         $this->assertArrayNotHasKey('checkinCard', $attributes);
@@ -75,8 +86,9 @@ class AddUserAttributesTest extends TestCase
         $serializer->shouldReceive('getActor')->andReturn($actor);
 
         $resolver = m::mock(CheckInStateResolver::class);
-        $resolver->shouldReceive('canCheckIn')->andReturn(true);
-        $adder = new AddUserAttributes($resolver);
+        $cardManager = m::mock(CheckinCardManager::class);
+
+        $adder = new AddUserAttributes($resolver, $cardManager);
         $attributes = $adder($serializer, $user, []);
 
         $this->assertArrayNotHasKey('checkinCard', $attributes);
@@ -99,8 +111,10 @@ class AddUserAttributesTest extends TestCase
         $serializer->shouldReceive('getActor')->andReturn($actor);
 
         $resolver = m::mock(CheckInStateResolver::class);
-        $resolver->shouldReceive('canCheckIn')->andReturn(true);
-        $adder = new AddUserAttributes($resolver);
+        $cardManager = m::mock(CheckinCardManager::class);
+        $cardManager->shouldReceive('getAvailableCards')->with($user)->andReturn(0);
+
+        $adder = new AddUserAttributes($resolver, $cardManager);
         $attributes = $adder($serializer, $user, []);
 
         $this->assertFalse($attributes['canCheckin']);

@@ -24,7 +24,7 @@ class PostSupplementCheckinTest extends TestCase
 
         $this->prepareDatabase([
             'users' => [
-                $this->normalUser(),
+                array_merge($this->normalUser(), ['checkin_card' => 10]),
             ],
         ]);
     }
@@ -663,5 +663,59 @@ class PostSupplementCheckinTest extends TestCase
         );
 
         $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    /**
+     * @test
+     */
+    public function supplement_decrements_legacy_checkin_card()
+    {
+        $this->prepareDatabase([
+            'group_permission' => [
+                ['permission' => 'checkin.allowSupplementaryCheckIn', 'group_id' => 3],
+            ],
+        ]);
+
+        $pastDate = date('Y-m-d', strtotime('-1 day'));
+
+        $response = $this->send(
+            $this->request('POST', '/api/supplement/checkin', [
+                'authenticatedAs' => 2,
+            ])->withParsedBody([
+                'date' => $pastDate,
+            ])
+        );
+
+        $this->assertEquals(201, $response->getStatusCode());
+        $user = User::query()->find(2);
+        $this->assertEquals(9, (int) $user->checkin_card);
+    }
+
+    /**
+     * @test
+     */
+    public function supplement_fails_when_no_checkin_cards_available()
+    {
+        $this->prepareDatabase([
+            'group_permission' => [
+                ['permission' => 'checkin.allowSupplementaryCheckIn', 'group_id' => 3],
+            ],
+        ]);
+
+        $this->database()->table('users')->where('id', 2)->update(['checkin_card' => 0]);
+
+        $pastDate = date('Y-m-d', strtotime('-1 day'));
+
+        $response = $this->send(
+            $this->request('POST', '/api/supplement/checkin', [
+                'authenticatedAs' => 2,
+            ])->withParsedBody([
+                'date' => $pastDate,
+            ])
+        );
+
+        $this->assertEquals(422, $response->getStatusCode());
+        $body = json_decode($response->getBody()->getContents(), true);
+        $this->assertArrayHasKey('errors', $body);
     }
 }

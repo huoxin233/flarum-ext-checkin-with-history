@@ -17,6 +17,7 @@ primexcalibur-checkin-with-history:
     modal:
       checkin: 补签
       supplement-checkin-desc: '确认要补 {dateStr} 的签到吗？（将消耗 1 张补签卡）'
+      available-cards: '当前可用补签卡：{count} 张'
       submit: 确认
   store:
     card_title: 补签卡

@@ -4,12 +4,15 @@ namespace Primexcalibur\Checkin\Api\Serializer;
 
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\User\User;
+use Primexcalibur\Checkin\Support\CheckinCardManager;
 use Primexcalibur\Checkin\Support\CheckInStateResolver;
 
 class AddUserAttributes
 {
-    public function __construct(private CheckInStateResolver $stateResolver)
-    {
+    public function __construct(
+        private CheckInStateResolver $stateResolver,
+        private CheckinCardManager $cardManager
+    ) {
     }
 
     public function __invoke(UserSerializer $serializer, User $user, array $attributes = []): array
@@ -21,10 +24,7 @@ class AddUserAttributes
 
         if (! $actor->isGuest() && $actor->id === $user->id) {
             $attributes['canCheckin'] = (bool) ($actor->can('checkin.allowCheckIn', $user) && $this->stateResolver->canCheckIn($user));
-        }
-
-        if (! $actor->isGuest() && $actor->id === $user->id) {
-            $attributes['checkinCard'] = (int) $user->checkin_card;
+            $attributes['checkinCard'] = $this->cardManager->getAvailableCards($user);
         }
 
         return $attributes;
