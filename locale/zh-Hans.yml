@@ -18,6 +18,9 @@ primexcalibur-checkin-with-history:
       checkin: 补签
       supplement-checkin-desc: '确认要补 {dateStr} 的签到吗？（将消耗 1 张补签卡）'
       submit: 确认
+  store:
+    card_title: 补签卡
+    use_instruction: 补签卡无法在背包中直接使用。请前往签到日历，点击需要补签的日期即可使用补签卡。
   admin:
     settings:
       auto-check-in: 自动签到

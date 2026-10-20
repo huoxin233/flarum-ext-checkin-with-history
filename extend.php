@@ -4,12 +4,15 @@ use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Api\Serializer\UserSerializer;
 use Flarum\Extend;
 use Flarum\User\User;
+use Mattoid\Store\Extend\StoreExtend;
 use Primexcalibur\Checkin\Access\UserPolicy;
 use Primexcalibur\Checkin\Api\Controller\CheckInController;
 use Primexcalibur\Checkin\Api\Controller\ListCheckinHistoryController;
 use Primexcalibur\Checkin\Api\Controller\PostCheckinHistoryController;
 use Primexcalibur\Checkin\Api\Serializer\AddForumAttributes;
 use Primexcalibur\Checkin\Api\Serializer\AddUserAttributes;
+use Primexcalibur\Checkin\Integration\Store\CheckinCardGoods;
+use Primexcalibur\Checkin\Integration\Store\CheckinCardUse;
 
 return [
     (new Extend\Frontend('admin'))
@@ -34,4 +37,12 @@ return [
         ->serializeToForum('forumCheckinSuccessPromptType', 'ziven-forum-checkin.checkinSuccessPromptType', 'intval', 0)
         ->serializeToForum('forumCheckinSuccessPromptText', 'ziven-forum-checkin.checkinSuccessPromptText', 'strval', '')
         ->serializeToForum('forumCheckinSuccessPromptRewardText', 'ziven-forum-checkin.checkinSuccessPromptRewardText', 'strval', ''),
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('mattoid-store', function () {
+            return [
+                (new StoreExtend('checkin-card'))
+                    ->addStoreGoods(CheckinCardGoods::class)
+                    ->addUse(CheckinCardUse::class),
+            ];
+        }),
 ];

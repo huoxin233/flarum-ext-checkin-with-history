@@ -18,6 +18,9 @@ primexcalibur-checkin-with-history:
       checkin: Check-in
       supplement-checkin-desc: 'Are you sure you want to supplement the check-in for {dateStr}? (1 Check-in Card will be used)'
       submit: Confirm
+  store:
+    card_title: 'Check-in Card'
+    use_instruction: 'Check-in Cards cannot be consumed directly from your backpack. Visit your Check-in calendar and click on any missed date to supplement your check-in.'
   admin:
     settings:
       auto-check-in: 'Auto check in'
