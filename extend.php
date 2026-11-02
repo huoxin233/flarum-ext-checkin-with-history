@@ -13,6 +13,7 @@ use Primexcalibur\Checkin\Api\Serializer\AddForumAttributes;
 use Primexcalibur\Checkin\Api\Serializer\AddUserAttributes;
 use Primexcalibur\Checkin\Integration\Store\CheckinCardGoods;
 use Primexcalibur\Checkin\Integration\Store\CheckinCardUse;
+use Primexcalibur\Checkin\Model\CheckinRecord;
 
 return [
     (new Extend\Frontend('admin'))
@@ -21,6 +22,8 @@ return [
         ->js(__DIR__.'/js/dist/forum.js')->css(__DIR__.'/less/forum.less')
         ->route('/u/{username}/checkin/history', 'user.checkin.history'),
     new Extend\Locales(__DIR__.'/locale'),
+    (new Extend\Model(User::class))
+        ->hasMany('checkinRecords', CheckinRecord::class, 'user_id'),
     (new Extend\Policy())->modelPolicy(User::class, UserPolicy::class),
     (new Extend\Routes('api'))
         ->post('/checkin', 'checkin.create', CheckInController::class)
