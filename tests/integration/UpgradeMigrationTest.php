@@ -102,7 +102,7 @@ class UpgradeMigrationTest extends TestCase
         $this->assertSame($checkin ? 1 : 0, $db->table('checkin_records')->count());
         $this->assertSame('2', $db->table('settings')->where('key', 'primexcalibur-checkin-with-history.checkinSuccessPromptType')->value('value'));
         $this->assertNull($db->table('settings')->where('key', 'ziven-forum-checkin.checkinSuccessPromptType')->value('value'));
-        $this->assertSame($checkin ? 0 : 4, $db->table('group_permission')->count());
+        $this->assertSame($checkin ? 0 : 1, $db->table('group_permission')->count());
         if ($history) {
             $record = $db->table('checkin_records')->first();
             $this->assertSame(1, (int) $record->type);

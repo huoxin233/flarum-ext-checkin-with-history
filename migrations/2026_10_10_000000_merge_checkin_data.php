@@ -24,7 +24,7 @@ return [
         }
 
         if (! $schema->hasTable('checkin_records')) {
-            $schema->create('checkin_records', function (Blueprint $table) {
+            $schema->create('checkin_records', function (Blueprint $table) use ($connection) {
                 $table->increments('id');
                 $table->unsignedInteger('user_id');
                 $table->tinyInteger('type')->default(0);
@@ -32,7 +32,8 @@ return [
                 $table->integer('streak')->default(1);
                 $table->dateTime('checked_in_at');
                 $table->unique(['user_id', 'checkin_date']);
-                $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+                $prefix = $connection->getTablePrefix();
+                $table->foreign('user_id', $prefix.'checkin_records_user_id_foreign')->references('id')->on('users')->onDelete('cascade');
             });
         }
 
@@ -110,9 +111,6 @@ return [
         if (! $hadCheckin) {
             $connection->table('group_permission')->insertOrIgnore([
                 ['group_id' => Group::MEMBER_ID, 'permission' => 'checkin.allowCheckIn'],
-                ['group_id' => Group::MEMBER_ID, 'permission' => 'checkin.allowSupplementaryCheckIn'],
-                ['group_id' => Group::MEMBER_ID, 'permission' => 'checkin.queryOthersHistory'],
-                ['group_id' => Group::GUEST_ID, 'permission' => 'checkin.queryOthersHistory'],
             ]);
         }
 
