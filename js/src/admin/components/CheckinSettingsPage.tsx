@@ -5,8 +5,8 @@ import type Mithril from 'mithril';
 
 export default class CheckinSettingsPage extends ExtensionPage {
   content(vnode?: Mithril.VnodeDOM<any, this>): JSX.Element {
-    const checkinColor = this.setting('mattoid-forum-checkin.checkin-color', '#2756c6')();
-    const supplementColor = this.setting('mattoid-forum-checkin.supplementary-color', '#ff9900')();
+    const checkinColor = this.setting('primexcalibur-checkin-with-history.checkinColor', '#2756c6')();
+    const supplementColor = this.setting('primexcalibur-checkin-with-history.supplementaryColor', '#ff9900')();
 
     return (
       <div className="ExtensionPage-settings CheckinSettingsPage">
@@ -15,31 +15,31 @@ export default class CheckinSettingsPage extends ExtensionPage {
             <fieldset>
               <legend>{app.translator.trans('primexcalibur-checkin-with-history.admin.sections.daily')}</legend>
               {this.buildSettingComponent({
-                setting: 'ziven-forum-checkin.checkinRewardMoney',
+                setting: 'primexcalibur-checkin-with-history.checkinRewardMoney',
                 label: app.translator.trans('primexcalibur-checkin-with-history.admin.settings.daily-reward-money'),
                 type: 'number',
                 step: 'any',
                 default: '0',
               })}
               {this.buildSettingComponent({
-                setting: 'ziven-forum-checkin.checkinTimeZone',
+                setting: 'primexcalibur-checkin-with-history.checkinTimeZone',
                 label: app.translator.trans('primexcalibur-checkin-with-history.admin.settings.timezone'),
                 type: 'number',
                 default: '0',
               })}
               {this.buildSettingComponent({
-                setting: 'ziven-forum-checkin.autoCheckIn',
+                setting: 'primexcalibur-checkin-with-history.autoCheckIn',
                 label: app.translator.trans('primexcalibur-checkin-with-history.admin.settings.auto-check-in'),
                 type: 'switch',
               })}
               {this.buildSettingComponent({
-                setting: 'ziven-forum-checkin.autoCheckInDelay',
+                setting: 'primexcalibur-checkin-with-history.autoCheckInDelay',
                 label: app.translator.trans('primexcalibur-checkin-with-history.admin.settings.auto-check-in-delay'),
                 type: 'number',
                 default: '0',
               })}
               {this.buildSettingComponent({
-                setting: 'ziven-forum-checkin.checkinSuccessPromptType',
+                setting: 'primexcalibur-checkin-with-history.checkinSuccessPromptType',
                 label: app.translator.trans('primexcalibur-checkin-with-history.admin.settings.check-in-success-prompt-type'),
                 type: 'select',
                 default: '0',
@@ -50,13 +50,13 @@ export default class CheckinSettingsPage extends ExtensionPage {
                 },
               })}
               {this.buildSettingComponent({
-                setting: 'ziven-forum-checkin.checkinSuccessPromptText',
+                setting: 'primexcalibur-checkin-with-history.checkinSuccessPromptText',
                 label: app.translator.trans('primexcalibur-checkin-with-history.admin.settings.check-in-success-prompt-text'),
                 help: app.translator.trans('primexcalibur-checkin-with-history.admin.settings.check-in-success-prompt-example-text'),
                 type: 'text',
               })}
               {this.buildSettingComponent({
-                setting: 'ziven-forum-checkin.checkinSuccessPromptRewardText',
+                setting: 'primexcalibur-checkin-with-history.checkinSuccessPromptRewardText',
                 label: app.translator.trans('primexcalibur-checkin-with-history.admin.settings.check-in-success-prompt-reward-text'),
                 help: app.translator.trans('primexcalibur-checkin-with-history.admin.settings.check-in-success-prompt-example-reward-text'),
                 type: 'text',
@@ -69,7 +69,7 @@ export default class CheckinSettingsPage extends ExtensionPage {
               <div className="CheckinAdminGrid">
                 <div className="Form-group">
                   <label>{app.translator.trans('primexcalibur-checkin-with-history.admin.settings.checkin-range')}</label>
-                  <input className="FormControl" type="number" bidi={this.setting('mattoid-forum-checkin.checkin-range', '0')} min="0" />
+                  <input className="FormControl" type="number" bidi={this.setting('primexcalibur-checkin-with-history.checkinRange', '0')} min="0" />
                   <div className="helpText">
                     {app.translator.trans('primexcalibur-checkin-with-history.admin.settings.checkin-range-requirement')}
                   </div>
@@ -77,7 +77,7 @@ export default class CheckinSettingsPage extends ExtensionPage {
 
                 <div className="Form-group">
                   <label>{app.translator.trans('primexcalibur-checkin-with-history.admin.settings.max-supplementary-checkin')}</label>
-                  <input className="FormControl" type="number" bidi={this.setting('mattoid-forum-checkin.max-supplementary-checkin', '0')} min="0" />
+                  <input className="FormControl" type="number" bidi={this.setting('primexcalibur-checkin-with-history.maxSupplementaryCheckin', '0')} min="0" />
                   <div className="helpText">
                     {app.translator.trans('primexcalibur-checkin-with-history.admin.settings.max-supplementary-checkin-requirement')}
                   </div>
@@ -87,14 +87,14 @@ export default class CheckinSettingsPage extends ExtensionPage {
               <div className="CheckinAdminGrid">
                 <div className="Form-group">
                   <label>{app.translator.trans('primexcalibur-checkin-with-history.admin.settings.min-supplementary-date')}</label>
-                  <input className="FormControl" type="date" bidi={this.setting('mattoid-forum-checkin.min-supplementary-date')} />
+                  <input className="FormControl" type="date" bidi={this.setting('primexcalibur-checkin-with-history.minSupplementaryDate')} />
                 </div>
 
                 <div className="Form-group CheckinAdminSwitchGroup">
                   <Switch
-                    state={this.setting('mattoid-forum-checkin.span-day-checkin')() === '1'}
+                    state={this.setting('primexcalibur-checkin-with-history.spanDayCheckin')() === '1'}
                     onchange={(val: boolean) => {
-                      this.setting('mattoid-forum-checkin.span-day-checkin')(val ? '1' : '0');
+                      this.setting('primexcalibur-checkin-with-history.spanDayCheckin')(val ? '1' : '0');
                     }}
                   >
                     {app.translator.trans('primexcalibur-checkin-with-history.admin.settings.span-day-checkin')}
@@ -111,7 +111,7 @@ export default class CheckinSettingsPage extends ExtensionPage {
 
               <div className="Form-group">
                 <label>{app.translator.trans('primexcalibur-checkin-with-history.admin.settings.reward-money')}</label>
-                <input className="FormControl" type="number" bidi={this.setting('mattoid-forum-checkin.reward-money', '0')} min="0" />
+                <input className="FormControl" type="number" bidi={this.setting('primexcalibur-checkin-with-history.rewardMoney', '0')} min="0" />
                 <div className="helpText">{app.translator.trans('primexcalibur-checkin-with-history.admin.settings.reward-money-requirement')}</div>
               </div>
             </fieldset>
@@ -127,7 +127,7 @@ export default class CheckinSettingsPage extends ExtensionPage {
                     <input
                       className="FormControl"
                       type="text"
-                      bidi={this.setting('mattoid-forum-checkin.checkin-color', '#2756c6')}
+                      bidi={this.setting('primexcalibur-checkin-with-history.checkinColor', '#2756c6')}
                       placeholder="#2756c6"
                     />
                   </div>
@@ -140,7 +140,7 @@ export default class CheckinSettingsPage extends ExtensionPage {
                     <input
                       className="FormControl"
                       type="text"
-                      bidi={this.setting('mattoid-forum-checkin.supplementary-color', '#ff9900')}
+                      bidi={this.setting('primexcalibur-checkin-with-history.supplementaryColor', '#ff9900')}
                       placeholder="#ff9900"
                     />
                   </div>
@@ -158,7 +158,7 @@ export default class CheckinSettingsPage extends ExtensionPage {
                   <input
                     className="FormControl"
                     type="text"
-                    bidi={this.setting('mattoid-forum-checkin.cdn-fullcalendar-url')}
+                    bidi={this.setting('primexcalibur-checkin-with-history.cdnFullcalendarUrl')}
                     placeholder="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"
                   />
                 </div>
@@ -168,7 +168,7 @@ export default class CheckinSettingsPage extends ExtensionPage {
                   <input
                     className="FormControl"
                     type="text"
-                    bidi={this.setting('mattoid-forum-checkin.cdn-fullcalendar-sri')}
+                    bidi={this.setting('primexcalibur-checkin-with-history.cdnFullcalendarSri')}
                     placeholder="sha384-..."
                   />
                 </div>
@@ -180,14 +180,14 @@ export default class CheckinSettingsPage extends ExtensionPage {
                   <input
                     className="FormControl"
                     type="text"
-                    bidi={this.setting('mattoid-forum-checkin.cdn-locales-url')}
+                    bidi={this.setting('primexcalibur-checkin-with-history.cdnLocalesUrl')}
                     placeholder="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/locales-all.global.min.js"
                   />
                 </div>
 
                 <div className="Form-group">
                   <label>{app.translator.trans('primexcalibur-checkin-with-history.admin.settings.cdn-locales-sri')}</label>
-                  <input className="FormControl" type="text" bidi={this.setting('mattoid-forum-checkin.cdn-locales-sri')} placeholder="sha384-..." />
+                  <input className="FormControl" type="text" bidi={this.setting('primexcalibur-checkin-with-history.cdnLocalesSri')} placeholder="sha384-..." />
                 </div>
               </div>
             </fieldset>
