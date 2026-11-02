@@ -74,11 +74,9 @@ class CheckInService
                     throw $this->error('api.error.insufficient-checkin-card');
                 }
 
-                $amount = (float) ($this->settings->get('primexcalibur-checkin-with-history.rewardMoney')
-                    ?? $this->settings->get('mattoid-forum-checkin.reward-money', 0));
+                $amount = (float) $this->settings->get('primexcalibur-checkin-with-history.rewardMoney', 0);
             } else {
-                $amount = (float) ($this->settings->get('primexcalibur-checkin-with-history.checkinRewardMoney')
-                    ?? $this->settings->get('ziven-forum-checkin.checkinRewardMoney', 0));
+                $amount = (float) $this->settings->get('primexcalibur-checkin-with-history.checkinRewardMoney', 0);
             }
 
             $record = $this->recordCheckin($user, $date, $supplementary, $forumTime);
@@ -105,14 +103,12 @@ class CheckInService
             throw $this->error('api.error.greater-than-today');
         }
 
-        $minDate = (string) ($this->settings->get('primexcalibur-checkin-with-history.minSupplementaryDate')
-            ?? $this->settings->get('mattoid-forum-checkin.min-supplementary-date', ''));
+        $minDate = (string) $this->settings->get('primexcalibur-checkin-with-history.minSupplementaryDate', '');
         if ($minDate !== '' && $date < $minDate) {
             throw $this->error('api.error.min-supplementary-date', ['day' => $minDate]);
         }
 
-        $range = (int) ($this->settings->get('primexcalibur-checkin-with-history.checkinRange')
-            ?? $this->settings->get('mattoid-forum-checkin.checkin-range', 0));
+        $range = (int) $this->settings->get('primexcalibur-checkin-with-history.checkinRange', 0);
         $days = CarbonImmutable::parse($date, 'UTC')->diffInDays($forumTime->startOfDay());
         if ($range > 0 && $days > $range) {
             throw $this->error('api.error.checkin-range', ['day' => $range]);
@@ -122,8 +118,7 @@ class CheckInService
     private function validateSupplementSequence(User $user, string $date, CarbonImmutable $forumTime): int
     {
         $day = CarbonImmutable::parse($date, 'UTC');
-        if (! (bool) ($this->settings->get('primexcalibur-checkin-with-history.spanDayCheckin')
-            ?? $this->settings->get('mattoid-forum-checkin.span-day-checkin', false))) {
+        if (! (bool) $this->settings->get('primexcalibur-checkin-with-history.spanDayCheckin', false)) {
             $signedDays = CheckinRecord::query()->where('user_id', $user->id)
                 ->where('checkin_date', '>', $date)
                 ->where('checkin_date', '<=', $forumTime->toDateString())
@@ -133,10 +128,8 @@ class CheckInService
             }
         }
 
-        $max = (int) ($this->settings->get('primexcalibur-checkin-with-history.maxSupplementaryCheckin')
-            ?? $this->settings->get('mattoid-forum-checkin.max-supplementary-checkin', 0));
-        $window = $max > 0 ? $max : (int) ($this->settings->get('primexcalibur-checkin-with-history.checkinRange')
-            ?? $this->settings->get('mattoid-forum-checkin.checkin-range', 30));
+        $max = (int) $this->settings->get('primexcalibur-checkin-with-history.maxSupplementaryCheckin', 0);
+        $window = $max > 0 ? $max : (int) $this->settings->get('primexcalibur-checkin-with-history.checkinRange', 30);
         if ($window <= 0) {
             $window = 30;
         }

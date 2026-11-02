@@ -18,9 +18,7 @@ class CheckinHistorySerializerTest extends TestCase
     {
         $settings = m::mock(SettingsRepositoryInterface::class);
         $settings->shouldReceive('get')->with('primexcalibur-checkin-with-history.checkinColor')->andReturn('#123456');
-        $settings->shouldReceive('get')->with('mattoid-forum-checkin.checkin-color')->andReturn('#123456');
         $settings->shouldReceive('get')->with('primexcalibur-checkin-with-history.supplementaryColor')->andReturn('#654321');
-        $settings->shouldReceive('get')->with('mattoid-forum-checkin.supplementary-color')->andReturn('#654321');
 
         $serializer = new CheckinHistorySerializer($settings);
 
@@ -40,9 +38,7 @@ class CheckinHistorySerializerTest extends TestCase
         $this->assertEquals(10, $attributes['userId']);
         $this->assertEquals(0, $attributes['type']);
         $this->assertEquals(3, $attributes['streak']);
-        $this->assertEquals(3, $attributes['totalContinuousCheckinCount']);
         $this->assertEquals('2026-08-18', $attributes['date']);
-        $this->assertEquals('2026-08-18', $attributes['start']);
         $this->assertEquals('#123456', $attributes['color']);
     }
 
@@ -53,9 +49,7 @@ class CheckinHistorySerializerTest extends TestCase
     {
         $settings = m::mock(SettingsRepositoryInterface::class);
         $settings->shouldReceive('get')->with('primexcalibur-checkin-with-history.checkinColor')->andReturn('#123456');
-        $settings->shouldReceive('get')->with('mattoid-forum-checkin.checkin-color')->andReturn('#123456');
         $settings->shouldReceive('get')->with('primexcalibur-checkin-with-history.supplementaryColor')->andReturn('#654321');
-        $settings->shouldReceive('get')->with('mattoid-forum-checkin.supplementary-color')->andReturn('#654321');
 
         $serializer = new CheckinHistorySerializer($settings);
 

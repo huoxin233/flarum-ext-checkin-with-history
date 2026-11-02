@@ -35,7 +35,6 @@ class AddForumAttributesTest extends TestCase
         $settings->shouldReceive('get')->with('primexcalibur-checkin-with-history.cdnFullcalendarSri')->andReturn('sha384-abc');
         $settings->shouldReceive('get')->with(m::pattern('/cdn/'))->andReturn(null);
         $settings->shouldReceive('get')->with('primexcalibur-checkin-with-history.checkinTimeZone')->andReturn(0);
-        $settings->shouldReceive('get')->with('ziven-forum-checkin.checkinTimeZone', 0)->andReturn(0);
 
         $adder = new AddForumAttributes($settings, new CheckInStateResolver($settings));
         $attributes = $adder($serializer, []);
@@ -62,7 +61,6 @@ class AddForumAttributesTest extends TestCase
         $settings = m::mock(SettingsRepositoryInterface::class);
         $settings->shouldReceive('get')->with(m::pattern('/cdn/'))->andReturn(null);
         $settings->shouldReceive('get')->with('primexcalibur-checkin-with-history.checkinTimeZone')->andReturn(0);
-        $settings->shouldReceive('get')->with('ziven-forum-checkin.checkinTimeZone', 0)->andReturn(0);
 
         $adder = new AddForumAttributes($settings, new CheckInStateResolver($settings));
         $attributes = $adder($serializer, []);

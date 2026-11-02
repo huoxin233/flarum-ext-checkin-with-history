@@ -58,7 +58,6 @@ class CheckInStateResolver
 
     private function timezoneOffsetHours(): int
     {
-        return (int) ($this->settings->get('primexcalibur-checkin-with-history.checkinTimeZone')
-            ?? $this->settings->get('ziven-forum-checkin.checkinTimeZone', 0));
+        return (int) $this->settings->get('primexcalibur-checkin-with-history.checkinTimeZone', 0);
     }
 }

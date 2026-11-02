@@ -23,10 +23,8 @@ class CheckinHistorySerializer extends AbstractSerializer
      */
     protected function getDefaultAttributes($history): array
     {
-        $checkinColor = $this->settings->get('primexcalibur-checkin-with-history.checkinColor')
-            ?? $this->settings->get('mattoid-forum-checkin.checkin-color') ?: '#2756c6';
-        $supplementaryColor = $this->settings->get('primexcalibur-checkin-with-history.supplementaryColor')
-            ?? $this->settings->get('mattoid-forum-checkin.supplementary-color') ?: '#ff9900';
+        $checkinColor = $this->settings->get('primexcalibur-checkin-with-history.checkinColor') ?: '#2756c6';
+        $supplementaryColor = $this->settings->get('primexcalibur-checkin-with-history.supplementaryColor') ?: '#ff9900';
 
         $checkinDate = $history->checkin_date instanceof DateTimeInterface
             ? $history->checkin_date->format('Y-m-d')
@@ -43,10 +41,6 @@ class CheckinHistorySerializer extends AbstractSerializer
             'streak' => (int) $history->streak,
             'date' => $checkinDate,
             'checkedInAt' => $checkedInAt,
-            // FullCalendar & backwards compatibility properties
-            'start' => $checkinDate,
-            'time' => $checkedInAt,
-            'totalContinuousCheckinCount' => (int) $history->streak,
             'color' => (int) $history->type === 1 ? $supplementaryColor : $checkinColor,
         ];
     }
