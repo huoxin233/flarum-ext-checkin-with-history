@@ -17,9 +17,14 @@ class CheckinCardManager
     ) {
     }
 
+    public static function resetTableCheck(): void
+    {
+        self::$storeTableExists = null;
+    }
+
     public function isStoreEnabled(): bool
     {
-        return $this->extensions->isEnabled('mattoid-store');
+        return $this->extensions->isEnabled('mattoid-store') || $this->hasStoreCartTable();
     }
 
     public function hasStoreCartTable(): bool

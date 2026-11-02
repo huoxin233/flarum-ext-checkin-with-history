@@ -23,7 +23,7 @@ class AddUserAttributesTest extends TestCase
     public function adds_checkin_card_for_self()
     {
         $user = new User();
-        $user->setRawAttributes(['id' => 1, 'checkin_card' => 5]);
+        $user->setRawAttributes(['id' => 1]);
 
         $actor = m::mock(User::class);
         $actor->shouldReceive('isGuest')->andReturn(false);
@@ -57,7 +57,7 @@ class AddUserAttributesTest extends TestCase
         $actor->shouldReceive('getAttribute')->with('id')->andReturn(1);
 
         $user = new User();
-        $user->setRawAttributes(['id' => 2, 'checkin_card' => 10]);
+        $user->setRawAttributes(['id' => 2]);
 
         $serializer = m::mock(UserSerializer::class);
         $serializer->shouldReceive('getActor')->andReturn($actor);
@@ -80,7 +80,7 @@ class AddUserAttributesTest extends TestCase
         $actor->shouldReceive('isGuest')->andReturn(true);
 
         $user = new User();
-        $user->setRawAttributes(['id' => 1, 'checkin_card' => 10]);
+        $user->setRawAttributes(['id' => 1]);
 
         $serializer = m::mock(UserSerializer::class);
         $serializer->shouldReceive('getActor')->andReturn($actor);

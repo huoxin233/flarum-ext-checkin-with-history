@@ -6,8 +6,9 @@ use Flarum\Api\Serializer\ForumSerializer;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\unit\TestCase;
 use Flarum\User\User;
-use Primexcalibur\Checkin\Api\Serializer\AddForumAttributes;
 use Mockery as m;
+use Primexcalibur\Checkin\Api\Serializer\AddForumAttributes;
+use Primexcalibur\Checkin\Support\CheckInStateResolver;
 
 class AddForumAttributesTest extends TestCase
 {
@@ -30,12 +31,13 @@ class AddForumAttributesTest extends TestCase
         $serializer->shouldReceive('getActor')->andReturn($actor);
 
         $settings = m::mock(SettingsRepositoryInterface::class);
-        $settings->shouldReceive('get')->with('mattoid-forum-checkin.cdn-fullcalendar-url')->andReturn('https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js');
-        $settings->shouldReceive('get')->with('mattoid-forum-checkin.cdn-fullcalendar-sri')->andReturn('sha384-abc');
-        $settings->shouldReceive('get')->with(m::pattern('/^mattoid-forum-checkin\.cdn-/'))->andReturn(null);
-
+        $settings->shouldReceive('get')->with('primexcalibur-checkin-with-history.cdnFullcalendarUrl')->andReturn('https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js');
+        $settings->shouldReceive('get')->with('primexcalibur-checkin-with-history.cdnFullcalendarSri')->andReturn('sha384-abc');
+        $settings->shouldReceive('get')->with(m::pattern('/cdn/'))->andReturn(null);
+        $settings->shouldReceive('get')->with('primexcalibur-checkin-with-history.checkinTimeZone')->andReturn(0);
         $settings->shouldReceive('get')->with('ziven-forum-checkin.checkinTimeZone', 0)->andReturn(0);
-        $adder = new AddForumAttributes($settings, new \Primexcalibur\Checkin\Support\CheckInStateResolver($settings));
+
+        $adder = new AddForumAttributes($settings, new CheckInStateResolver($settings));
         $attributes = $adder($serializer, []);
 
         $this->assertArrayHasKey('canQueryOthersHistory', $attributes);
@@ -58,10 +60,11 @@ class AddForumAttributesTest extends TestCase
         $serializer->shouldReceive('getActor')->andReturn($actor);
 
         $settings = m::mock(SettingsRepositoryInterface::class);
-        $settings->shouldReceive('get')->with(m::pattern('/^mattoid-forum-checkin\.cdn-/'))->andReturn(null);
-
+        $settings->shouldReceive('get')->with(m::pattern('/cdn/'))->andReturn(null);
+        $settings->shouldReceive('get')->with('primexcalibur-checkin-with-history.checkinTimeZone')->andReturn(0);
         $settings->shouldReceive('get')->with('ziven-forum-checkin.checkinTimeZone', 0)->andReturn(0);
-        $adder = new AddForumAttributes($settings, new \Primexcalibur\Checkin\Support\CheckInStateResolver($settings));
+
+        $adder = new AddForumAttributes($settings, new CheckInStateResolver($settings));
         $attributes = $adder($serializer, []);
 
         $this->assertArrayHasKey('canQueryOthersHistory', $attributes);

@@ -116,7 +116,7 @@ class CheckInIntegrationTest extends TestCase
     /** @test */
     public function it_records_reward_history_when_money_extension_is_enabled(): void
     {
-        $this->settings()->set('ziven-forum-checkin.checkinRewardMoney', '5.5');
+        $this->settings()->set('primexcalibur-checkin-with-history.checkinRewardMoney', '5.5');
 
         $response = $this->send(
             $this->request('POST', '/api/checkin', ['authenticatedAs' => 2])
@@ -139,7 +139,7 @@ class CheckInIntegrationTest extends TestCase
     /** @test */
     public function it_skips_money_history_when_the_reward_amount_is_zero(): void
     {
-        $this->settings()->set('ziven-forum-checkin.checkinRewardMoney', '0');
+        $this->settings()->set('primexcalibur-checkin-with-history.checkinRewardMoney', '0');
 
         $response = $this->send(
             $this->request('POST', '/api/checkin', ['authenticatedAs' => 2])
@@ -201,7 +201,7 @@ class CheckInIntegrationTest extends TestCase
     public function it_respects_timezone_offset_at_day_boundary(): void
     {
         CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-04-11 15:59:00', 'UTC'));
-        $this->settings()->set('ziven-forum-checkin.checkinTimeZone', '8');
+        $this->settings()->set('primexcalibur-checkin-with-history.checkinTimeZone', '8');
 
         $response1 = $this->send(
             $this->request('POST', '/api/checkin', ['authenticatedAs' => 2])
@@ -227,7 +227,7 @@ class CheckInIntegrationTest extends TestCase
     {
         // For UTC-5 (America/New_York), the day boundary (midnight local time) occurs at 05:00 UTC.
         CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-04-11 04:59:00', 'UTC')); // 23:59 local
-        $this->settings()->set('ziven-forum-checkin.checkinTimeZone', '-5');
+        $this->settings()->set('primexcalibur-checkin-with-history.checkinTimeZone', '-5');
 
         $response1 = $this->send(
             $this->request('POST', '/api/checkin', ['authenticatedAs' => 2])
@@ -251,7 +251,7 @@ class CheckInIntegrationTest extends TestCase
     /** @test */
     public function it_records_streak_days_in_money_history_params(): void
     {
-        $this->settings()->set('ziven-forum-checkin.checkinRewardMoney', '10');
+        $this->settings()->set('primexcalibur-checkin-with-history.checkinRewardMoney', '10');
 
         // First check-in
         $this->send($this->request('POST', '/api/checkin', ['authenticatedAs' => 2]));

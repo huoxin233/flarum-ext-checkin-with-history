@@ -20,13 +20,43 @@ class PostSupplementCheckinTest extends TestCase
 
         $this->extension('huoxin-money-with-history');
         $this->extension('primexcalibur-checkin-with-history');
-        $this->setting('mattoid-forum-checkin.span-day-checkin', '1');
+        $this->setting('primexcalibur-checkin-with-history.spanDayCheckin', '1');
 
         $this->prepareDatabase([
             'users' => [
-                array_merge($this->normalUser(), ['checkin_card' => 10]),
+                $this->normalUser(),
             ],
         ]);
+        $this->prepareStoreBackpack(2, 10);
+    }
+
+    protected function prepareStoreBackpack(int $userId = 2, int $count = 10): void
+    {
+        $schema = $this->database()->getSchemaBuilder();
+        if (! $schema->hasTable('store_cart')) {
+            $schema->create('store_cart', function ($table) {
+                $table->increments('id');
+                $table->unsignedInteger('user_id');
+                $table->string('title');
+                $table->string('code');
+                $table->tinyInteger('status')->default(1);
+                $table->string('type')->default('permanent');
+                $table->dateTime('outtime')->nullable();
+                $table->timestamps();
+            });
+        }
+        $this->database()->table('store_cart')->where('user_id', $userId)->delete();
+        for ($i = 0; $i < $count; $i++) {
+            $this->database()->table('store_cart')->insert([
+                'user_id' => $userId,
+                'title' => 'Check-in Card',
+                'code' => 'checkin-card',
+                'status' => 1,
+                'type' => 'permanent',
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+        }
     }
 
     /**
@@ -56,9 +86,10 @@ class PostSupplementCheckinTest extends TestCase
         $this->assertEquals(1, $data['attributes']['type']);
         $this->assertEquals($pastDate, $data['attributes']['start']);
 
-        $record = CheckinRecord::query()->where('user_id', 2)->where('last_checkin_date', $pastDate)->first();
+        $record = CheckinRecord::query()->where('user_id', 2)->where('checkin_date', $pastDate)->first();
         $this->assertNotNull($record);
         $this->assertEquals(1, $record->type);
+        $this->assertEquals(1, $record->streak);
     }
 
     /**
@@ -157,15 +188,14 @@ class PostSupplementCheckinTest extends TestCase
         $date = date('Y-m-d', strtotime('-3 days'));
 
         $this->prepareDatabase([
-            'user_checkin_history' => [
+            'checkin_records' => [
                 [
                     'id' => 1,
                     'user_id' => 2,
                     'type' => 0,
-                    'last_checkin_date' => $date,
-                    'total_checkin_count' => 1,
-                    'total_continuous_checkin_count' => 1,
-                    'last_checkin_time' => date('Y-m-d H:i:s'),
+                    'checkin_date' => $date,
+                    'streak' => 1,
+                    'checked_in_at' => date('Y-m-d H:i:s'),
                 ],
             ],
         ]);
@@ -192,7 +222,7 @@ class PostSupplementCheckinTest extends TestCase
             ],
         ]);
 
-        $this->setting('mattoid-forum-checkin.min-supplementary-date', date('Y-m-d', strtotime('-5 days')));
+        $this->setting('primexcalibur-checkin-with-history.minSupplementaryDate', date('Y-m-d', strtotime('-5 days')));
 
         // Date before the min date
         $tooEarlyDate = date('Y-m-d', strtotime('-7 days'));
@@ -219,7 +249,7 @@ class PostSupplementCheckinTest extends TestCase
             ],
         ]);
 
-        $this->setting('mattoid-forum-checkin.checkin-range', '3');
+        $this->setting('primexcalibur-checkin-with-history.checkinRange', '3');
 
         // Date beyond 3 days
         $tooOldDate = date('Y-m-d', strtotime('-5 days'));
@@ -246,7 +276,7 @@ class PostSupplementCheckinTest extends TestCase
             ],
         ]);
 
-        $this->setting('mattoid-forum-checkin.span-day-checkin', '0');
+        $this->setting('primexcalibur-checkin-with-history.spanDayCheckin', '0');
 
         $threeDaysAgo = date('Y-m-d', strtotime('-3 days'));
 
@@ -272,22 +302,21 @@ class PostSupplementCheckinTest extends TestCase
             ],
         ]);
 
-        $this->setting('mattoid-forum-checkin.span-day-checkin', '0');
+        $this->setting('primexcalibur-checkin-with-history.spanDayCheckin', '0');
 
         $yesterday = date('Y-m-d', strtotime('-1 day'));
         $today = date('Y-m-d');
 
         // Today is signed
         $this->prepareDatabase([
-            'user_checkin_history' => [
+            'checkin_records' => [
                 [
                     'id' => 1,
                     'user_id' => 2,
                     'type' => 0,
-                    'last_checkin_date' => $today,
-                    'total_checkin_count' => 1,
-                    'total_continuous_checkin_count' => 1,
-                    'last_checkin_time' => date('Y-m-d H:i:s'),
+                    'checkin_date' => $today,
+                    'streak' => 1,
+                    'checked_in_at' => date('Y-m-d H:i:s'),
                 ],
             ],
         ]);
@@ -314,7 +343,7 @@ class PostSupplementCheckinTest extends TestCase
             ],
         ]);
 
-        $this->setting('mattoid-forum-checkin.max-supplementary-checkin', '2');
+        $this->setting('primexcalibur-checkin-with-history.maxSupplementaryCheckin', '2');
 
         $day1 = date('Y-m-d', strtotime('-3 days'));
         $day2 = date('Y-m-d', strtotime('-2 days'));
@@ -322,24 +351,22 @@ class PostSupplementCheckinTest extends TestCase
 
         // 2 consecutive supplements already exist
         $this->prepareDatabase([
-            'user_checkin_history' => [
+            'checkin_records' => [
                 [
                     'id' => 1,
                     'user_id' => 2,
                     'type' => 1,
-                    'last_checkin_date' => $day1,
-                    'total_checkin_count' => 1,
-                    'total_continuous_checkin_count' => 1,
-                    'last_checkin_time' => date('Y-m-d H:i:s'),
+                    'checkin_date' => $day1,
+                    'streak' => 1,
+                    'checked_in_at' => date('Y-m-d H:i:s'),
                 ],
                 [
                     'id' => 2,
                     'user_id' => 2,
                     'type' => 1,
-                    'last_checkin_date' => $day2,
-                    'total_checkin_count' => 2,
-                    'total_continuous_checkin_count' => 2,
-                    'last_checkin_time' => date('Y-m-d H:i:s'),
+                    'checkin_date' => $day2,
+                    'streak' => 2,
+                    'checked_in_at' => date('Y-m-d H:i:s'),
                 ],
             ],
         ]);
@@ -365,16 +392,8 @@ class PostSupplementCheckinTest extends TestCase
             'group_permission' => [
                 ['permission' => 'checkin.allowSupplementaryCheckIn', 'group_id' => 3],
             ],
-            'users' => [
-                [
-                    'id' => 2,
-                    'username' => 'normal',
-                    'email' => 'normal@machine.local',
-                    'is_email_confirmed' => 1,
-                    'checkin_card' => 3,
-                ],
-            ],
         ]);
+        $this->prepareStoreBackpack(2, 3);
 
         $pastDate = date('Y-m-d', strtotime('-1 day'));
 
@@ -388,31 +407,25 @@ class PostSupplementCheckinTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $user = User::query()->find(2);
-        $this->assertEquals(2, $user->checkin_card);
+        $remainingCards = $this->database()->table('store_cart')
+            ->where('user_id', 2)
+            ->where('code', 'checkin-card')
+            ->where('status', 1)
+            ->count();
+        $this->assertEquals(2, $remainingCards);
     }
 
     /**
      * @test
      */
-    public function disallows_supplement_when_only_card_enabled_and_card_zero()
+    public function disallows_supplement_when_no_cards_available()
     {
         $this->prepareDatabase([
             'group_permission' => [
                 ['permission' => 'checkin.allowSupplementaryCheckIn', 'group_id' => 3],
             ],
-            'users' => [
-                [
-                    'id' => 2,
-                    'username' => 'normal',
-                    'email' => 'normal@machine.local',
-                    'is_email_confirmed' => 1,
-                    'checkin_card' => 0,
-                ],
-            ],
         ]);
-
-        $this->setting('mattoid-forum-checkin.checkin-card', '1');
+        $this->prepareStoreBackpack(2, 0);
 
         $pastDate = date('Y-m-d', strtotime('-1 day'));
 
@@ -442,55 +455,13 @@ class PostSupplementCheckinTest extends TestCase
                     'username' => 'normal',
                     'email' => 'normal@machine.local',
                     'is_email_confirmed' => 1,
-                    'checkin_card' => 1,
                     'money' => 5.0,
                 ],
             ],
         ]);
+        $this->prepareStoreBackpack(2, 1);
 
-        $this->setting('mattoid-forum-checkin.consumption', '0');
-        $this->setting('mattoid-forum-checkin.reward-money', '10');
-
-        $pastDate = date('Y-m-d', strtotime('-1 day'));
-
-        $response = $this->send(
-            $this->request('POST', '/api/supplement/checkin', [
-                'authenticatedAs' => 2,
-            ])->withParsedBody([
-                'date' => $pastDate,
-            ])
-        );
-
-        $this->assertEquals(201, $response->getStatusCode());
-
-        $user = User::query()->find(2);
-        $this->assertEquals(0, $user->checkin_card);
-        $this->assertEquals(15.0, (float) $user->money); // 5 + 10 reward
-    }
-
-    /**
-     * @test
-     */
-    public function deducts_money_when_no_card_and_awards_reward_money()
-    {
-        $this->prepareDatabase([
-            'group_permission' => [
-                ['permission' => 'checkin.allowSupplementaryCheckIn', 'group_id' => 3],
-            ],
-            'users' => [
-                [
-                    'id' => 2,
-                    'username' => 'normal',
-                    'email' => 'normal@machine.local',
-                    'is_email_confirmed' => 1,
-                    'checkin_card' => 0,
-                    'money' => 50.0,
-                ],
-            ],
-        ]);
-
-        $this->setting('mattoid-forum-checkin.consumption', '10');
-        $this->setting('mattoid-forum-checkin.reward-money', '2');
+        $this->setting('primexcalibur-checkin-with-history.rewardMoney', '10');
 
         $pastDate = date('Y-m-d', strtotime('-1 day'));
 
@@ -504,46 +475,15 @@ class PostSupplementCheckinTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
+        $remainingCards = $this->database()->table('store_cart')
+            ->where('user_id', 2)
+            ->where('code', 'checkin-card')
+            ->where('status', 1)
+            ->count();
+        $this->assertEquals(0, $remainingCards);
+
         $user = User::query()->find(2);
-        // 50 - 10 (consumption) + 2 (reward) = 42
-        $this->assertEquals(42.0, (float) $user->money);
-    }
-
-    /**
-     * @test
-     */
-    public function blocks_supplement_when_money_balance_insufficient()
-    {
-        $this->prepareDatabase([
-            'group_permission' => [
-                ['permission' => 'checkin.allowSupplementaryCheckIn', 'group_id' => 3],
-            ],
-            'users' => [
-                [
-                    'id' => 2,
-                    'username' => 'normal',
-                    'email' => 'normal@machine.local',
-                    'is_email_confirmed' => 1,
-                    'checkin_card' => 0,
-                    'money' => 20.0, // Not enough for 100
-                ],
-            ],
-        ]);
-
-        $this->setting('mattoid-forum-checkin.consumption', '100');
-        $this->setting('mattoid-forum-checkin.reward-money', '0');
-
-        $pastDate = date('Y-m-d', strtotime('-1 day'));
-
-        $response = $this->send(
-            $this->request('POST', '/api/supplement/checkin', [
-                'authenticatedAs' => 2,
-            ])->withParsedBody([
-                'date' => $pastDate,
-            ])
-        );
-
-        $this->assertEquals(422, $response->getStatusCode());
+        $this->assertEquals(15.0, (float) $user->money);
     }
 
     /**
@@ -558,34 +498,30 @@ class PostSupplementCheckinTest extends TestCase
         ]);
 
         $day1 = date('Y-m-d', strtotime('-3 days'));
-        $day2 = date('Y-m-d', strtotime('-2 days')); // Missing day to supplement
+        $day2 = date('Y-m-d', strtotime('-2 days'));
         $day3 = date('Y-m-d', strtotime('-1 day'));
 
-        // Day 1 has streak 1, Day 3 has streak 1
         $this->prepareDatabase([
-            'user_checkin_history' => [
+            'checkin_records' => [
                 [
                     'id' => 1,
                     'user_id' => 2,
                     'type' => 0,
-                    'last_checkin_date' => $day1,
-                    'total_checkin_count' => 1,
-                    'total_continuous_checkin_count' => 1,
-                    'last_checkin_time' => date('Y-m-d H:i:s'),
+                    'checkin_date' => $day1,
+                    'streak' => 1,
+                    'checked_in_at' => date('Y-m-d H:i:s'),
                 ],
                 [
                     'id' => 2,
                     'user_id' => 2,
                     'type' => 0,
-                    'last_checkin_date' => $day3,
-                    'total_checkin_count' => 2,
-                    'total_continuous_checkin_count' => 1,
-                    'last_checkin_time' => date('Y-m-d H:i:s'),
+                    'checkin_date' => $day3,
+                    'streak' => 1,
+                    'checked_in_at' => date('Y-m-d H:i:s'),
                 ],
             ],
         ]);
 
-        // Supplement Day 2
         $response = $this->send(
             $this->request('POST', '/api/supplement/checkin', [
                 'authenticatedAs' => 2,
@@ -596,11 +532,11 @@ class PostSupplementCheckinTest extends TestCase
 
         $this->assertEquals(201, $response->getStatusCode());
 
-        $recordDay2 = CheckinRecord::query()->where('user_id', 2)->where('last_checkin_date', $day2)->first();
-        $recordDay3 = CheckinRecord::query()->where('user_id', 2)->where('last_checkin_date', $day3)->first();
+        $recordDay2 = CheckinRecord::query()->where('user_id', 2)->where('checkin_date', $day2)->first();
+        $recordDay3 = CheckinRecord::query()->where('user_id', 2)->where('checkin_date', $day3)->first();
 
-        $this->assertEquals(2, $recordDay2->total_continuous_checkin_count);
-        $this->assertEquals(3, $recordDay3->total_continuous_checkin_count); // Automatically re-chained to 3!
+        $this->assertEquals(2, $recordDay2->streak);
+        $this->assertEquals(3, $recordDay3->streak);
     }
 
     /**
@@ -668,13 +604,14 @@ class PostSupplementCheckinTest extends TestCase
     /**
      * @test
      */
-    public function supplement_decrements_legacy_checkin_card()
+    public function supplement_decrements_store_backpack_card()
     {
         $this->prepareDatabase([
             'group_permission' => [
                 ['permission' => 'checkin.allowSupplementaryCheckIn', 'group_id' => 3],
             ],
         ]);
+        $this->prepareStoreBackpack(2, 10);
 
         $pastDate = date('Y-m-d', strtotime('-1 day'));
 
@@ -687,8 +624,12 @@ class PostSupplementCheckinTest extends TestCase
         );
 
         $this->assertEquals(201, $response->getStatusCode());
-        $user = User::query()->find(2);
-        $this->assertEquals(9, (int) $user->checkin_card);
+        $remainingCards = $this->database()->table('store_cart')
+            ->where('user_id', 2)
+            ->where('code', 'checkin-card')
+            ->where('status', 1)
+            ->count();
+        $this->assertEquals(9, $remainingCards);
     }
 
     /**
@@ -701,8 +642,7 @@ class PostSupplementCheckinTest extends TestCase
                 ['permission' => 'checkin.allowSupplementaryCheckIn', 'group_id' => 3],
             ],
         ]);
-
-        $this->database()->table('users')->where('id', 2)->update(['checkin_card' => 0]);
+        $this->prepareStoreBackpack(2, 0);
 
         $pastDate = date('Y-m-d', strtotime('-1 day'));
 

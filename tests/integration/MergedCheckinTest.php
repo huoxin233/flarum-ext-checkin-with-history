@@ -20,9 +20,9 @@ class MergedCheckinTest extends TestCase
         parent::setUp();
         CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-04-11 12:00:00', 'UTC'));
         $this->extension('huoxin-money-with-history', 'primexcalibur-checkin-with-history');
-        $this->setting('mattoid-forum-checkin.span-day-checkin', '1');
-        $this->setting('mattoid-forum-checkin.reward-money', '5');
-        $this->setting('ziven-forum-checkin.checkinRewardMoney', '7');
+        $this->setting('primexcalibur-checkin-with-history.spanDayCheckin', '1');
+        $this->setting('primexcalibur-checkin-with-history.rewardMoney', '5');
+        $this->setting('primexcalibur-checkin-with-history.checkinRewardMoney', '7');
         $this->prepareDatabase([
             'users' => [$this->normalUser()],
             'group_permission' => [
@@ -30,6 +30,31 @@ class MergedCheckinTest extends TestCase
                 ['group_id' => 3, 'permission' => 'checkin.allowSupplementaryCheckIn'],
             ],
         ]);
+        $schema = $this->database()->getSchemaBuilder();
+        if (! $schema->hasTable('store_cart')) {
+            $schema->create('store_cart', function ($table) {
+                $table->increments('id');
+                $table->unsignedInteger('user_id');
+                $table->string('title');
+                $table->string('code');
+                $table->tinyInteger('status')->default(1);
+                $table->string('type')->default('permanent');
+                $table->dateTime('outtime')->nullable();
+                $table->timestamps();
+            });
+        }
+        $this->database()->table('store_cart')->truncate();
+        for ($i = 0; $i < 10; $i++) {
+            $this->database()->table('store_cart')->insert([
+                'user_id' => 2,
+                'title' => 'Check-in Card',
+                'code' => 'checkin-card',
+                'status' => 1,
+                'type' => 'permanent',
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+        }
         $this->app();
     }
 
@@ -53,9 +78,11 @@ class MergedCheckinTest extends TestCase
     private function record(string $date, int $continuous): void
     {
         CheckinRecord::query()->create([
-            'user_id' => 2, 'type' => 0, 'last_checkin_date' => $date,
-            'last_checkin_time' => $date.' 12:00:00', 'total_checkin_count' => $continuous,
-            'total_continuous_checkin_count' => $continuous,
+            'user_id' => 2,
+            'type' => 0,
+            'checkin_date' => $date,
+            'checked_in_at' => $date.' 12:00:00',
+            'streak' => $continuous,
         ]);
     }
 
@@ -91,7 +118,7 @@ class MergedCheckinTest extends TestCase
         $this->record('2026-04-10', 1);
         User::whereKey(2)->update(['last_checkin_time' => '2026-04-10 12:00:00', 'total_continuous_checkin_count' => 1]);
         $this->assertSame(201, $this->supplement('2026-04-02')->getStatusCode());
-        $this->assertSame(10, CheckinRecord::where('last_checkin_date', '2026-04-03')->first()->total_continuous_checkin_count);
+        $this->assertSame(10, CheckinRecord::where('checkin_date', '2026-04-03')->first()->streak);
         $this->assertSame(1, (int) User::find(2)->total_continuous_checkin_count);
         $this->assertSame(200, $this->checkin()->getStatusCode());
         $this->assertSame(2, (int) User::find(2)->total_continuous_checkin_count);
@@ -124,7 +151,8 @@ class MergedCheckinTest extends TestCase
     /** @test */
     public function failed_supplement_rolls_back_the_card_reward_and_record_without_emitting_an_event(): void
     {
-        User::whereKey(2)->update(['checkin_card' => 2, 'money' => 10]);
+        User::whereKey(2)->update(['money' => 10]);
+        $initialUnusedCards = $this->database()->table('store_cart')->where('user_id', 2)->where('status', 1)->count();
         $dispatched = false;
         $this->app()->getContainer()->make(Dispatcher::class)->listen(CheckedIn::class, function () use (&$dispatched) {
             $dispatched = true;
@@ -137,7 +165,7 @@ class MergedCheckinTest extends TestCase
 
         $this->assertSame(500, $this->supplement('2026-04-10')->getStatusCode());
         $user = User::find(2);
-        $this->assertSame(2, (int) $user->checkin_card);
+        $this->assertSame($initialUnusedCards, $this->database()->table('store_cart')->where('user_id', 2)->where('status', 1)->count());
         $this->assertEquals(10, $user->money);
         $this->assertSame(0, (int) $user->total_checkin_count);
         $this->assertSame(0, CheckinRecord::query()->count());
@@ -165,9 +193,9 @@ class MergedCheckinTest extends TestCase
     public function forum_day_and_history_use_the_same_timezone_at_midnight(): void
     {
         CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-04-11 16:01:00', 'UTC'));
-        $this->app()->getContainer()->make(SettingsRepositoryInterface::class)->set('ziven-forum-checkin.checkinTimeZone', 8);
+        $this->app()->getContainer()->make(SettingsRepositoryInterface::class)->set('primexcalibur-checkin-with-history.checkinTimeZone', 8);
         $this->assertSame(200, $this->checkin()->getStatusCode());
-        $this->assertSame('2026-04-12', CheckinRecord::first()->last_checkin_date);
+        $this->assertSame('2026-04-12', CheckinRecord::first()->checkin_date);
         $response = $this->send($this->request('GET', '/api', ['authenticatedAs' => 2]));
         $payload = json_decode((string) $response->getBody(), true);
         $this->assertSame('2026-04-12', $payload['data']['attributes']['checkinToday']);

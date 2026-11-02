@@ -15,7 +15,7 @@ class UpgradeMigrationTest extends TestCase
     {
         if ($this->upgradeConnection) {
             $schema = $this->upgradeConnection->getSchemaBuilder();
-            foreach (['user_checkin_history', 'users', 'settings', 'group_permission'] as $table) {
+            foreach (['checkin_records', 'user_checkin_history', 'users', 'settings', 'group_permission', 'store_cart'] as $table) {
                 $schema->dropIfExists($table);
             }
         }
@@ -61,6 +61,16 @@ class UpgradeMigrationTest extends TestCase
             $values += ['last_checkin_time' => '2026-04-10 20:00:00', 'total_checkin_count' => 40, 'total_continuous_checkin_count' => 8];
         }
         if ($history) {
+            $schema->create('store_cart', function (Blueprint $table) {
+                $table->increments('id');
+                $table->unsignedInteger('user_id');
+                $table->string('title');
+                $table->string('code');
+                $table->tinyInteger('status')->default(1);
+                $table->string('type')->default('permanent');
+                $table->dateTime('outtime')->nullable();
+                $table->timestamps();
+            });
             $values['checkin_card'] = 3;
             $schema->create('user_checkin_history', function (Blueprint $table) {
                 $table->increments('id');
@@ -86,13 +96,19 @@ class UpgradeMigrationTest extends TestCase
         $user = $db->table('users')->first();
         $this->assertSame($checkin ? 40 : 0, (int) $user->total_checkin_count);
         $this->assertSame($checkin ? 8 : 0, (int) $user->total_continuous_checkin_count);
-        $this->assertSame($history ? 3 : 0, (int) $user->checkin_card);
-        $this->assertSame($checkin ? 1 : 0, $db->table('user_checkin_history')->count());
-        $this->assertSame('2', $db->table('settings')->where('key', 'ziven-forum-checkin.checkinSuccessPromptType')->value('value'));
+        $this->assertFalse($schema->hasColumn('users', 'checkin_card'));
+        $this->assertFalse($schema->hasTable('user_checkin_history'));
+        $this->assertTrue($schema->hasTable('checkin_records'));
+        $this->assertSame($checkin ? 1 : 0, $db->table('checkin_records')->count());
+        $this->assertSame('2', $db->table('settings')->where('key', 'primexcalibur-checkin-with-history.checkinSuccessPromptType')->value('value'));
+        $this->assertNull($db->table('settings')->where('key', 'ziven-forum-checkin.checkinSuccessPromptType')->value('value'));
         $this->assertSame($checkin ? 0 : 4, $db->table('group_permission')->count());
         if ($history) {
-            $this->assertSame(99, (int) $db->table('user_checkin_history')->first()->id);
-            $this->assertSame(1, (int) $db->table('user_checkin_history')->first()->type);
+            $record = $db->table('checkin_records')->first();
+            $this->assertSame(1, (int) $record->type);
+            $this->assertSame('2026-04-10', $record->checkin_date);
+            $this->assertSame(8, (int) $record->streak);
+            $this->assertSame(3, $db->table('store_cart')->where('user_id', 2)->where('code', 'checkin-card')->count());
         }
     }
 }
