@@ -74,9 +74,11 @@ class CheckInService
                     throw $this->error('api.error.insufficient-checkin-card');
                 }
 
-                $amount = (float) $this->settings->get('mattoid-forum-checkin.reward-money', 0);
+                $amount = (float) ($this->settings->get('primexcalibur-checkin-with-history.rewardMoney')
+                    ?? $this->settings->get('mattoid-forum-checkin.reward-money', 0));
             } else {
-                $amount = (float) $this->settings->get('ziven-forum-checkin.checkinRewardMoney', 0);
+                $amount = (float) ($this->settings->get('primexcalibur-checkin-with-history.checkinRewardMoney')
+                    ?? $this->settings->get('ziven-forum-checkin.checkinRewardMoney', 0));
             }
 
             $record = $this->recordCheckin($user, $date, $supplementary, $forumTime);
@@ -103,12 +105,14 @@ class CheckInService
             throw $this->error('api.error.greater-than-today');
         }
 
-        $minDate = (string) $this->settings->get('mattoid-forum-checkin.min-supplementary-date', '');
+        $minDate = (string) ($this->settings->get('primexcalibur-checkin-with-history.minSupplementaryDate')
+            ?? $this->settings->get('mattoid-forum-checkin.min-supplementary-date', ''));
         if ($minDate !== '' && $date < $minDate) {
             throw $this->error('api.error.min-supplementary-date', ['day' => $minDate]);
         }
 
-        $range = (int) $this->settings->get('mattoid-forum-checkin.checkin-range', 0);
+        $range = (int) ($this->settings->get('primexcalibur-checkin-with-history.checkinRange')
+            ?? $this->settings->get('mattoid-forum-checkin.checkin-range', 0));
         $days = CarbonImmutable::parse($date, 'UTC')->diffInDays($forumTime->startOfDay());
         if ($range > 0 && $days > $range) {
             throw $this->error('api.error.checkin-range', ['day' => $range]);
@@ -118,18 +122,21 @@ class CheckInService
     private function validateSupplementSequence(User $user, string $date, CarbonImmutable $forumTime): int
     {
         $day = CarbonImmutable::parse($date, 'UTC');
-        if (! (bool) $this->settings->get('mattoid-forum-checkin.span-day-checkin', false)) {
+        if (! (bool) ($this->settings->get('primexcalibur-checkin-with-history.spanDayCheckin')
+            ?? $this->settings->get('mattoid-forum-checkin.span-day-checkin', false))) {
             $signedDays = CheckinRecord::query()->where('user_id', $user->id)
-                ->where('last_checkin_date', '>', $date)
-                ->where('last_checkin_date', '<=', $forumTime->toDateString())
-                ->distinct()->count('last_checkin_date');
+                ->where('checkin_date', '>', $date)
+                ->where('checkin_date', '<=', $forumTime->toDateString())
+                ->distinct()->count('checkin_date');
             if ($signedDays < $day->diffInDays($forumTime->startOfDay())) {
                 throw $this->error('api.error.span-day-checkin', ['date' => $date]);
             }
         }
 
-        $max = (int) $this->settings->get('mattoid-forum-checkin.max-supplementary-checkin', 0);
-        $window = $max > 0 ? $max : (int) $this->settings->get('mattoid-forum-checkin.checkin-range', 30);
+        $max = (int) ($this->settings->get('primexcalibur-checkin-with-history.maxSupplementaryCheckin')
+            ?? $this->settings->get('mattoid-forum-checkin.max-supplementary-checkin', 0));
+        $window = $max > 0 ? $max : (int) ($this->settings->get('primexcalibur-checkin-with-history.checkinRange')
+            ?? $this->settings->get('mattoid-forum-checkin.checkin-range', 30));
         if ($window <= 0) {
             $window = 30;
         }
@@ -140,8 +147,8 @@ class CheckInService
         $supplementDates = CheckinRecord::query()
             ->where('user_id', $user->id)
             ->where('type', 1)
-            ->whereBetween('last_checkin_date', [$minDate, $maxDate])
-            ->pluck('last_checkin_date')
+            ->whereBetween('checkin_date', [$minDate, $maxDate])
+            ->pluck('checkin_date')
             ->flip();
 
         $count = 0;
@@ -182,36 +189,35 @@ class CheckInService
         $lastDate = $this->stateResolver->lastCheckInDate($user);
         $previousDate = CarbonImmutable::parse($date, 'UTC')->subDay()->toDateString();
         $previous = CheckinRecord::query()->where('user_id', $user->id)
-            ->where('last_checkin_date', $previousDate)->first();
+            ->where('checkin_date', $previousDate)->first();
         // Aggregate-only legacy installations have a known streak but no earlier daily records.
-        $continuous = 1 + ($previous ? (int) $previous->total_continuous_checkin_count
+        $continuous = 1 + ($previous ? (int) $previous->streak
             : ($lastDate === $previousDate ? (int) $user->total_continuous_checkin_count : 0));
 
         $user->total_checkin_count = (int) $user->total_checkin_count + 1;
         $record = new CheckinRecord();
         $record->user_id = $user->id;
         $record->type = (int) $supplementary;
-        $record->last_checkin_date = $date;
-        $record->last_checkin_time = CarbonImmutable::now('UTC');
-        $record->total_checkin_count = $user->total_checkin_count;
-        $record->total_continuous_checkin_count = $continuous;
+        $record->checkin_date = $date;
+        $record->streak = $continuous;
+        $record->checked_in_at = CarbonImmutable::now('UTC');
         $record->save();
 
         $endDate = $date;
         $nextDate = CarbonImmutable::parse($date, 'UTC')->addDay();
         $subsequent = CheckinRecord::query()
             ->where('user_id', $user->id)
-            ->where('last_checkin_date', '>=', $nextDate->toDateString())
-            ->orderBy('last_checkin_date', 'asc')
+            ->where('checkin_date', '>=', $nextDate->toDateString())
+            ->orderBy('checkin_date', 'asc')
             ->get();
 
         foreach ($subsequent as $next) {
-            if ($next->last_checkin_date !== $nextDate->toDateString()) {
+            if ($next->checkin_date !== $nextDate->toDateString()) {
                 break;
             }
-            $next->total_continuous_checkin_count = ++$continuous;
+            $next->streak = ++$continuous;
             $next->save();
-            $endDate = $next->last_checkin_date;
+            $endDate = $next->checkin_date;
             $nextDate = $nextDate->addDay();
         }
 

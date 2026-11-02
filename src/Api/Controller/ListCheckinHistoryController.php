@@ -56,7 +56,7 @@ class ListCheckinHistoryController extends AbstractListController
         if (! empty($start)) {
             $startDate = substr((string) $start, 0, 10);
             if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate)) {
-                $query->where('last_checkin_date', '>=', $startDate);
+                $query->where('checkin_date', '>=', $startDate);
             }
         }
 
@@ -64,10 +64,10 @@ class ListCheckinHistoryController extends AbstractListController
         if (! empty($end)) {
             $endDate = substr((string) $end, 0, 10);
             if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
-                $query->where('last_checkin_date', '<=', $endDate);
+                $query->where('checkin_date', '<=', $endDate);
             }
         }
 
-        return $query->orderBy('last_checkin_date', 'asc')->get();
+        return $query->orderBy('checkin_date', 'asc')->get();
     }
 }

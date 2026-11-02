@@ -19,14 +19,18 @@ class CheckInStateResolver
         $today = ($forumTime ?? $this->currentForumTime())->toDateString();
         $lastDate = $this->lastCheckInDate($user);
 
-        return ($lastDate === null || $today > $lastDate) && ! $this->hasCheckInOn($user, $today);
+        if ($lastDate !== null && $today <= $lastDate) {
+            return false;
+        }
+
+        return ! $this->hasCheckInOn($user, $today);
     }
 
     public function hasCheckInOn(User $user, string $date): bool
     {
         return $this->lastCheckInDate($user) === $date
             || CheckinRecord::query()
-                ->where('user_id', $user->id)->where('last_checkin_date', $date)->exists();
+                ->where('user_id', $user->id)->where('checkin_date', $date)->exists();
     }
 
     public function lastCheckInDate(User $user): ?string
@@ -54,6 +58,7 @@ class CheckInStateResolver
 
     private function timezoneOffsetHours(): int
     {
-        return (int) $this->settings->get('ziven-forum-checkin.checkinTimeZone', 0);
+        return (int) ($this->settings->get('primexcalibur-checkin-with-history.checkinTimeZone')
+            ?? $this->settings->get('ziven-forum-checkin.checkinTimeZone', 0));
     }
 }
