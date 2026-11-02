@@ -31,15 +31,14 @@ return [
         ->post('/supplement/checkin', 'checkin.supplement', PostCheckinHistoryController::class),
     (new Extend\ApiSerializer(UserSerializer::class))->attributes(AddUserAttributes::class),
     (new Extend\ApiSerializer(ForumSerializer::class))->attributes(AddForumAttributes::class),
-    // Persisted keys are shared with the original extensions so upgrades retain their settings.
     (new Extend\Settings())
-        ->serializeToForum('forumCheckinRewardMoney', 'ziven-forum-checkin.checkinRewardMoney', 'floatval', 0)
-        ->serializeToForum('forumAutoCheckin', 'ziven-forum-checkin.autoCheckIn', 'intval', 0)
-        ->serializeToForum('forumAutoCheckinDelay', 'ziven-forum-checkin.autoCheckInDelay', 'intval', 0)
-        ->serializeToForum('forumCheckinTimeZone', 'ziven-forum-checkin.checkinTimeZone', 'intval', 0)
-        ->serializeToForum('forumCheckinSuccessPromptType', 'ziven-forum-checkin.checkinSuccessPromptType', 'intval', 0)
-        ->serializeToForum('forumCheckinSuccessPromptText', 'ziven-forum-checkin.checkinSuccessPromptText', 'strval', '')
-        ->serializeToForum('forumCheckinSuccessPromptRewardText', 'ziven-forum-checkin.checkinSuccessPromptRewardText', 'strval', ''),
+        ->serializeToForum('forumCheckinRewardMoney', 'primexcalibur-checkin-with-history.checkinRewardMoney', 'floatval', 0)
+        ->serializeToForum('forumAutoCheckin', 'primexcalibur-checkin-with-history.autoCheckIn', 'intval', 0)
+        ->serializeToForum('forumAutoCheckinDelay', 'primexcalibur-checkin-with-history.autoCheckInDelay', 'intval', 0)
+        ->serializeToForum('forumCheckinTimeZone', 'primexcalibur-checkin-with-history.checkinTimeZone', 'intval', 0)
+        ->serializeToForum('forumCheckinSuccessPromptType', 'primexcalibur-checkin-with-history.checkinSuccessPromptType', 'intval', 0)
+        ->serializeToForum('forumCheckinSuccessPromptText', 'primexcalibur-checkin-with-history.checkinSuccessPromptText', 'strval', '')
+        ->serializeToForum('forumCheckinSuccessPromptRewardText', 'primexcalibur-checkin-with-history.checkinSuccessPromptRewardText', 'strval', ''),
     (new Extend\Conditional())
         ->whenExtensionEnabled('mattoid-store', function () {
             return [

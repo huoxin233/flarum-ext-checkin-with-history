@@ -23,21 +23,30 @@ class CheckinHistorySerializer extends AbstractSerializer
      */
     protected function getDefaultAttributes($history): array
     {
-        $checkinColor = $this->settings->get('mattoid-forum-checkin.checkin-color') ?: '#2756c6';
-        $supplementaryColor = $this->settings->get('mattoid-forum-checkin.supplementary-color') ?: '#ff9900';
+        $checkinColor = $this->settings->get('primexcalibur-checkin-with-history.checkinColor')
+            ?? $this->settings->get('mattoid-forum-checkin.checkin-color') ?: '#2756c6';
+        $supplementaryColor = $this->settings->get('primexcalibur-checkin-with-history.supplementaryColor')
+            ?? $this->settings->get('mattoid-forum-checkin.supplementary-color') ?: '#ff9900';
+
+        $checkinDate = $history->checkin_date instanceof DateTimeInterface
+            ? $history->checkin_date->format('Y-m-d')
+            : (string) $history->checkin_date;
+
+        $checkedInAt = $history->checked_in_at instanceof DateTimeInterface
+            ? $this->formatDate($history->checked_in_at)
+            : (string) $history->checked_in_at;
 
         return [
             'id' => (int) $history->id,
             'userId' => (int) $history->user_id,
             'type' => (int) $history->type,
-            'totalCheckinCount' => (int) $history->total_checkin_count,
-            'totalContinuousCheckinCount' => (int) $history->total_continuous_checkin_count,
-            'start' => $history->last_checkin_date instanceof DateTimeInterface
-                ? $history->last_checkin_date->format('Y-m-d')
-                : (string) $history->last_checkin_date,
-            'time' => $history->last_checkin_time instanceof DateTimeInterface
-                ? $this->formatDate($history->last_checkin_time)
-                : (string) $history->last_checkin_time,
+            'streak' => (int) $history->streak,
+            'date' => $checkinDate,
+            'checkedInAt' => $checkedInAt,
+            // FullCalendar & backwards compatibility properties
+            'start' => $checkinDate,
+            'time' => $checkedInAt,
+            'totalContinuousCheckinCount' => (int) $history->streak,
             'color' => (int) $history->type === 1 ? $supplementaryColor : $checkinColor,
         ];
     }

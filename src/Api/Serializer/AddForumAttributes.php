@@ -23,12 +23,16 @@ class AddForumAttributes
 
         $attributes['checkinCdnResources'] = [
             'fullcalendar' => [
-                'url' => (string) ($this->settings->get('mattoid-forum-checkin.cdn-fullcalendar-url') ?: ''),
-                'sri' => (string) ($this->settings->get('mattoid-forum-checkin.cdn-fullcalendar-sri') ?: ''),
+                'url' => (string) ($this->settings->get('primexcalibur-checkin-with-history.cdnFullcalendarUrl')
+                    ?? $this->settings->get('mattoid-forum-checkin.cdn-fullcalendar-url') ?: ''),
+                'sri' => (string) ($this->settings->get('primexcalibur-checkin-with-history.cdnFullcalendarSri')
+                    ?? $this->settings->get('mattoid-forum-checkin.cdn-fullcalendar-sri') ?: ''),
             ],
             'locales' => [
-                'url' => (string) ($this->settings->get('mattoid-forum-checkin.cdn-locales-url') ?: ''),
-                'sri' => (string) ($this->settings->get('mattoid-forum-checkin.cdn-locales-sri') ?: ''),
+                'url' => (string) ($this->settings->get('primexcalibur-checkin-with-history.cdnLocalesUrl')
+                    ?? $this->settings->get('mattoid-forum-checkin.cdn-locales-url') ?: ''),
+                'sri' => (string) ($this->settings->get('primexcalibur-checkin-with-history.cdnLocalesSri')
+                    ?? $this->settings->get('mattoid-forum-checkin.cdn-locales-sri') ?: ''),
             ],
         ];
 

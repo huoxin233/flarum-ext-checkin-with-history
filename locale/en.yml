@@ -69,7 +69,6 @@ primexcalibur-checkin-with-history:
       checkin-range: 'The supplementary check-in request exceeds the valid range, cannot exceed {day} days.'
       max-supplementary-checkin: 'Continuous supplementary check-in exceeds the limit of {day} days.'
       span-day-checkin: 'Check-in failed. There are unsigned dates after {date}, span-day check-in is not allowed.'
-      insufficient-balance: 'Insufficient balance, check-in failed.'
       insufficient-checkin-card: 'Check-in failed. You do not have any Check-in Cards. Please purchase one from the Store.'
       min-supplementary-date: 'Cannot supplement records prior to {day}.'
       greater-than-today: 'The check-in date cannot be greater than today.'

@@ -69,7 +69,6 @@ primexcalibur-checkin-with-history:
       checkin-range: '补签请求超出有效范围，不允许补签超过{day}天的记录'
       max-supplementary-checkin: '连续补签超出限制，允许最大连续补签{day}天'
       span-day-checkin: '签到失败，{date}之后有未签到记录，不允许跨天签到'
-      insufficient-balance: 余额不足，补签失败
       insufficient-checkin-card: '补签失败，补签卡不足。请前往商城购买补签卡后再进行补签。'
       min-supplementary-date: '不允许补签{day}以前的记录'
       greater-than-today: 签到日期不允许大于今天
