@@ -22,6 +22,7 @@ class MergedCheckinTest extends TestCase
     {
         parent::setUp();
         CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-04-11 12:00:00', 'UTC'));
+        $this->extension('flarum-suspend');
         $this->extension('huoxin-money-with-history');
         $this->extension('primexcalibur-checkin-with-history');
         $this->setting('primexcalibur-checkin-with-history.spanDayCheckin', '1');
@@ -61,12 +62,23 @@ class MergedCheckinTest extends TestCase
         }
         CheckinRecord::query()->delete();
         $this->database()->table('user_money_history')->delete();
-        $this->database()->table('users')->where('id', 2)->update([
-            'total_checkin_count' => 0,
-            'total_continuous_checkin_count' => 0,
-            'last_checkin_time' => null,
-            'money' => 0,
-        ]);
+        $this->database()->table('users')->updateOrInsert(
+            ['id' => 2],
+            array_merge($this->normalUser(), [
+                'total_checkin_count' => 0,
+                'total_continuous_checkin_count' => 0,
+                'last_checkin_time' => null,
+                'money' => 0,
+            ])
+        );
+        $this->database()->table('group_permission')->updateOrInsert(
+            ['group_id' => 3, 'permission' => 'checkin.allowCheckIn'],
+            ['group_id' => 3, 'permission' => 'checkin.allowCheckIn']
+        );
+        $this->database()->table('group_permission')->updateOrInsert(
+            ['group_id' => 3, 'permission' => 'checkin.allowSupplementaryCheckIn'],
+            ['group_id' => 3, 'permission' => 'checkin.allowSupplementaryCheckIn']
+        );
 
         self::$simulateUserSaveFailure = false;
         if (! self::$listenerRegistered) {
@@ -87,6 +99,19 @@ class MergedCheckinTest extends TestCase
         CheckinRecord::query()->delete();
         CarbonImmutable::setTestNow();
         parent::tearDown();
+    }
+
+    protected function prepareDatabase(array $tableData): void
+    {
+        parent::prepareDatabase($tableData);
+
+        if ($this->app) {
+            foreach ($tableData as $table => $rows) {
+                foreach ($rows as $row) {
+                    $this->database()->table($table)->updateOrInsert($row, $row);
+                }
+            }
+        }
     }
 
     private function supplement(string $date)
@@ -118,7 +143,8 @@ class MergedCheckinTest extends TestCase
         $this->assertSame(201, $response->getStatusCode());
         $payload = json_decode((string) $response->getBody(), true);
         $this->assertFalse($payload['included'][0]['attributes']['canCheckin']);
-        $this->assertSame(422, $this->checkin()->getStatusCode());
+        $checkinResponse = $this->checkin();
+        $this->assertSame(422, $checkinResponse->getStatusCode(), (string) $checkinResponse->getBody());
         $this->assertSame(1, (int) User::find(2)->total_checkin_count);
         $this->assertEquals(5, User::find(2)->money);
         $this->assertSame(1, CheckinRecord::query()->count());

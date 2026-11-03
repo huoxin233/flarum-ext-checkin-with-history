@@ -27,14 +27,34 @@ class PostSupplementCheckinTest extends TestCase
             'users' => [
                 $this->normalUser(),
             ],
+            'group_permission' => [
+                ['permission' => 'checkin.allowSupplementaryCheckIn', 'group_id' => 3],
+            ],
         ]);
         $this->prepareStoreBackpack(2, 10);
+        $this->database()->table('group_permission')->updateOrInsert(
+            ['permission' => 'checkin.allowSupplementaryCheckIn', 'group_id' => 3],
+            ['permission' => 'checkin.allowSupplementaryCheckIn', 'group_id' => 3]
+        );
     }
 
     protected function tearDown(): void
     {
         CheckinRecord::query()->where('user_id', 2)->delete();
         parent::tearDown();
+    }
+
+    protected function prepareDatabase(array $tableData): void
+    {
+        parent::prepareDatabase($tableData);
+
+        if ($this->app) {
+            foreach ($tableData as $table => $rows) {
+                foreach ($rows as $row) {
+                    $this->database()->table($table)->updateOrInsert($row, $row);
+                }
+            }
+        }
     }
 
     protected function setting(string $key, $value): void
@@ -131,6 +151,10 @@ class PostSupplementCheckinTest extends TestCase
      */
     public function user_without_permission_cannot_supplement_checkin()
     {
+        $this->database()->table('group_permission')
+            ->where('permission', 'checkin.allowSupplementaryCheckIn')
+            ->delete();
+
         $pastDate = date('Y-m-d', strtotime('-2 days'));
 
         $response = $this->send(
