@@ -52,6 +52,7 @@ const getLibs = (): Record<string, LibConfig> => {
       loaded: () =>
         typeof FullCalendar !== 'undefined' &&
         Boolean(FullCalendar.Calendar) &&
+        Array.isArray(FullCalendar.globalPlugins) &&
         ['@fullcalendar/daygrid', '@fullcalendar/interaction', '@fullcalendar/list'].every((name) =>
           FullCalendar.globalPlugins.some((plugin: any) => plugin.name === name)
         ),
