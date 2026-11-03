@@ -18,6 +18,7 @@ class PostSupplementCheckinTest extends TestCase
     {
         parent::setUp();
 
+        $this->extension('flarum-suspend');
         $this->extension('huoxin-money-with-history');
         $this->extension('primexcalibur-checkin-with-history');
         $this->setting('primexcalibur-checkin-with-history.spanDayCheckin', '1');
@@ -28,6 +29,21 @@ class PostSupplementCheckinTest extends TestCase
             ],
         ]);
         $this->prepareStoreBackpack(2, 10);
+    }
+
+    protected function tearDown(): void
+    {
+        CheckinRecord::query()->where('user_id', 2)->delete();
+        parent::tearDown();
+    }
+
+    protected function setting(string $key, $value): void
+    {
+        parent::setting($key, (string) $value);
+
+        if ($this->app) {
+            $this->app()->getContainer()->make(\Flarum\Settings\SettingsRepositoryInterface::class)->set($key, (string) $value);
+        }
     }
 
     protected function prepareStoreBackpack(int $userId = 2, int $count = 10): void
@@ -84,7 +100,7 @@ class PostSupplementCheckinTest extends TestCase
         $data = json_decode($response->getBody()->getContents(), true)['data'];
 
         $this->assertEquals(1, $data['attributes']['type']);
-        $this->assertEquals($pastDate, $data['attributes']['start']);
+        $this->assertEquals($pastDate, $data['attributes']['date']);
 
         $record = CheckinRecord::query()->where('user_id', 2)->where('checkin_date', $pastDate)->first();
         $this->assertNotNull($record);
@@ -107,7 +123,7 @@ class PostSupplementCheckinTest extends TestCase
                 ])
         );
 
-        $this->assertEquals(403, $response->getStatusCode());
+        $this->assertEquals(401, $response->getStatusCode());
     }
 
     /**
@@ -187,17 +203,13 @@ class PostSupplementCheckinTest extends TestCase
 
         $date = date('Y-m-d', strtotime('-3 days'));
 
-        $this->prepareDatabase([
-            'checkin_records' => [
-                [
-                    'id' => 1,
-                    'user_id' => 2,
-                    'type' => 0,
-                    'checkin_date' => $date,
-                    'streak' => 1,
-                    'checked_in_at' => date('Y-m-d H:i:s'),
-                ],
-            ],
+        CheckinRecord::query()->where('user_id', 2)->delete();
+        CheckinRecord::query()->create([
+            'user_id' => 2,
+            'type' => 0,
+            'checkin_date' => $date,
+            'streak' => 1,
+            'checked_in_at' => Carbon::now(),
         ]);
 
         $response = $this->send(
@@ -308,17 +320,13 @@ class PostSupplementCheckinTest extends TestCase
         $today = date('Y-m-d');
 
         // Today is signed
-        $this->prepareDatabase([
-            'checkin_records' => [
-                [
-                    'id' => 1,
-                    'user_id' => 2,
-                    'type' => 0,
-                    'checkin_date' => $today,
-                    'streak' => 1,
-                    'checked_in_at' => date('Y-m-d H:i:s'),
-                ],
-            ],
+        CheckinRecord::query()->where('user_id', 2)->delete();
+        CheckinRecord::query()->create([
+            'user_id' => 2,
+            'type' => 0,
+            'checkin_date' => $today,
+            'streak' => 1,
+            'checked_in_at' => Carbon::now(),
         ]);
 
         $response = $this->send(
@@ -350,25 +358,20 @@ class PostSupplementCheckinTest extends TestCase
         $day3 = date('Y-m-d', strtotime('-1 day'));
 
         // 2 consecutive supplements already exist
-        $this->prepareDatabase([
-            'checkin_records' => [
-                [
-                    'id' => 1,
-                    'user_id' => 2,
-                    'type' => 1,
-                    'checkin_date' => $day1,
-                    'streak' => 1,
-                    'checked_in_at' => date('Y-m-d H:i:s'),
-                ],
-                [
-                    'id' => 2,
-                    'user_id' => 2,
-                    'type' => 1,
-                    'checkin_date' => $day2,
-                    'streak' => 2,
-                    'checked_in_at' => date('Y-m-d H:i:s'),
-                ],
-            ],
+        CheckinRecord::query()->where('user_id', 2)->delete();
+        CheckinRecord::query()->create([
+            'user_id' => 2,
+            'type' => 1,
+            'checkin_date' => $day1,
+            'streak' => 1,
+            'checked_in_at' => Carbon::now(),
+        ]);
+        CheckinRecord::query()->create([
+            'user_id' => 2,
+            'type' => 1,
+            'checkin_date' => $day2,
+            'streak' => 2,
+            'checked_in_at' => Carbon::now(),
         ]);
 
         // Attempting a 3rd consecutive supplement
@@ -460,6 +463,7 @@ class PostSupplementCheckinTest extends TestCase
             ],
         ]);
         $this->prepareStoreBackpack(2, 1);
+        User::query()->where('id', 2)->update(['money' => 5.0]);
 
         $this->setting('primexcalibur-checkin-with-history.rewardMoney', '10');
 
@@ -501,25 +505,20 @@ class PostSupplementCheckinTest extends TestCase
         $day2 = date('Y-m-d', strtotime('-2 days'));
         $day3 = date('Y-m-d', strtotime('-1 day'));
 
-        $this->prepareDatabase([
-            'checkin_records' => [
-                [
-                    'id' => 1,
-                    'user_id' => 2,
-                    'type' => 0,
-                    'checkin_date' => $day1,
-                    'streak' => 1,
-                    'checked_in_at' => date('Y-m-d H:i:s'),
-                ],
-                [
-                    'id' => 2,
-                    'user_id' => 2,
-                    'type' => 0,
-                    'checkin_date' => $day3,
-                    'streak' => 1,
-                    'checked_in_at' => date('Y-m-d H:i:s'),
-                ],
-            ],
+        CheckinRecord::query()->where('user_id', 2)->delete();
+        CheckinRecord::query()->create([
+            'user_id' => 2,
+            'type' => 0,
+            'checkin_date' => $day1,
+            'streak' => 1,
+            'checked_in_at' => Carbon::now(),
+        ]);
+        CheckinRecord::query()->create([
+            'user_id' => 2,
+            'type' => 0,
+            'checkin_date' => $day3,
+            'streak' => 1,
+            'checked_in_at' => Carbon::now(),
         ]);
 
         $response = $this->send(

@@ -15,11 +15,15 @@ class MergedCheckinTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
+    private static bool $listenerRegistered = false;
+    private static bool $simulateUserSaveFailure = false;
+
     protected function setUp(): void
     {
         parent::setUp();
         CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-04-11 12:00:00', 'UTC'));
-        $this->extension('huoxin-money-with-history', 'primexcalibur-checkin-with-history');
+        $this->extension('huoxin-money-with-history');
+        $this->extension('primexcalibur-checkin-with-history');
         $this->setting('primexcalibur-checkin-with-history.spanDayCheckin', '1');
         $this->setting('primexcalibur-checkin-with-history.rewardMoney', '5');
         $this->setting('primexcalibur-checkin-with-history.checkinRewardMoney', '7');
@@ -43,7 +47,7 @@ class MergedCheckinTest extends TestCase
                 $table->timestamps();
             });
         }
-        $this->database()->table('store_cart')->truncate();
+        $this->database()->table('store_cart')->delete();
         for ($i = 0; $i < 10; $i++) {
             $this->database()->table('store_cart')->insert([
                 'user_id' => 2,
@@ -55,11 +59,32 @@ class MergedCheckinTest extends TestCase
                 'updated_at' => date('Y-m-d H:i:s'),
             ]);
         }
+        CheckinRecord::query()->delete();
+        $this->database()->table('user_money_history')->delete();
+        $this->database()->table('users')->where('id', 2)->update([
+            'total_checkin_count' => 0,
+            'total_continuous_checkin_count' => 0,
+            'last_checkin_time' => null,
+            'money' => 0,
+        ]);
+
+        self::$simulateUserSaveFailure = false;
+        if (! self::$listenerRegistered) {
+            User::saved(function (User $user) {
+                if (self::$simulateUserSaveFailure && $user->id === 2) {
+                    throw new \RuntimeException('Simulated save failure');
+                }
+            });
+            self::$listenerRegistered = true;
+        }
+
         $this->app();
     }
 
     protected function tearDown(): void
     {
+        self::$simulateUserSaveFailure = false;
+        CheckinRecord::query()->delete();
         CarbonImmutable::setTestNow();
         parent::tearDown();
     }
@@ -136,12 +161,9 @@ class MergedCheckinTest extends TestCase
     /** @test */
     public function a_failed_user_save_rolls_back_the_history_and_reward_together(): void
     {
-        User::saved(function (User $user) {
-            if ($user->id === 2) {
-                throw new \RuntimeException('Simulated save failure');
-            }
-        });
+        self::$simulateUserSaveFailure = true;
         $this->assertSame(500, $this->checkin()->getStatusCode());
+        self::$simulateUserSaveFailure = false;
         $this->assertSame(0, (int) User::find(2)->total_checkin_count);
         $this->assertEquals(0, User::find(2)->money);
         $this->assertSame(0, CheckinRecord::query()->count());
@@ -157,13 +179,11 @@ class MergedCheckinTest extends TestCase
         $this->app()->getContainer()->make(Dispatcher::class)->listen(CheckedIn::class, function () use (&$dispatched) {
             $dispatched = true;
         });
-        User::saved(function (User $user) {
-            if ($user->id === 2) {
-                throw new \RuntimeException('Simulated save failure');
-            }
-        });
 
+        self::$simulateUserSaveFailure = true;
         $this->assertSame(500, $this->supplement('2026-04-10')->getStatusCode());
+        self::$simulateUserSaveFailure = false;
+
         $user = User::find(2);
         $this->assertSame($initialUnusedCards, $this->database()->table('store_cart')->where('user_id', 2)->where('status', 1)->count());
         $this->assertEquals(10, $user->money);
@@ -195,7 +215,7 @@ class MergedCheckinTest extends TestCase
         CarbonImmutable::setTestNow(CarbonImmutable::parse('2026-04-11 16:01:00', 'UTC'));
         $this->app()->getContainer()->make(SettingsRepositoryInterface::class)->set('primexcalibur-checkin-with-history.checkinTimeZone', 8);
         $this->assertSame(200, $this->checkin()->getStatusCode());
-        $this->assertSame('2026-04-12', CheckinRecord::first()->checkin_date);
+        $this->assertSame('2026-04-12', CheckinRecord::where('user_id', 2)->latest('id')->first()->checkin_date);
         $response = $this->send($this->request('GET', '/api', ['authenticatedAs' => 2]));
         $payload = json_decode((string) $response->getBody(), true);
         $this->assertSame('2026-04-12', $payload['data']['attributes']['checkinToday']);
