@@ -5,4 +5,3 @@ export { CheckinRecord };
 export const models = {
   CheckinRecord,
 };
-

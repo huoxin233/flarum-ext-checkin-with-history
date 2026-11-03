@@ -21,7 +21,7 @@ export default class SupplementCheckinModal extends Modal<SupplementCheckinModal
   }
 
   content(): Mithril.Children {
-    const availableCards = (app.session.user?.attribute<number>('checkinCard') ?? 0);
+    const availableCards = app.session.user?.attribute<number>('checkinCard') ?? 0;
     const hasCard = availableCards > 0;
 
     return (
@@ -39,12 +39,7 @@ export default class SupplementCheckinModal extends Modal<SupplementCheckinModal
           </p>
         </div>
         <div className="Form-group">
-          <Button
-            type="submit"
-            className="Button Button--primary"
-            loading={this.loading}
-            disabled={!hasCard}
-          >
+          <Button type="submit" className="Button Button--primary" loading={this.loading} disabled={!hasCard}>
             {app.translator.trans('primexcalibur-checkin-with-history.forum.modal.submit')}
           </Button>
         </div>

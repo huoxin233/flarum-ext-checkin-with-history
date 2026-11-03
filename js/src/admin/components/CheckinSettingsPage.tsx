@@ -77,7 +77,12 @@ export default class CheckinSettingsPage extends ExtensionPage {
 
                 <div className="Form-group">
                   <label>{app.translator.trans('primexcalibur-checkin-with-history.admin.settings.max-supplementary-checkin')}</label>
-                  <input className="FormControl" type="number" bidi={this.setting('primexcalibur-checkin-with-history.maxSupplementaryCheckin', '0')} min="0" />
+                  <input
+                    className="FormControl"
+                    type="number"
+                    bidi={this.setting('primexcalibur-checkin-with-history.maxSupplementaryCheckin', '0')}
+                    min="0"
+                  />
                   <div className="helpText">
                     {app.translator.trans('primexcalibur-checkin-with-history.admin.settings.max-supplementary-checkin-requirement')}
                   </div>
@@ -187,7 +192,12 @@ export default class CheckinSettingsPage extends ExtensionPage {
 
                 <div className="Form-group">
                   <label>{app.translator.trans('primexcalibur-checkin-with-history.admin.settings.cdn-locales-sri')}</label>
-                  <input className="FormControl" type="text" bidi={this.setting('primexcalibur-checkin-with-history.cdnLocalesSri')} placeholder="sha384-..." />
+                  <input
+                    className="FormControl"
+                    type="text"
+                    bidi={this.setting('primexcalibur-checkin-with-history.cdnLocalesSri')}
+                    placeholder="sha384-..."
+                  />
                 </div>
               </div>
             </fieldset>
