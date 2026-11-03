@@ -8,7 +8,7 @@ use Flarum\User\User;
 
 class UserPolicy extends AbstractPolicy
 {
-    public function allowCheckIn(User $actor, User $user)
+    public function allowCheckIn(User $actor, User $user): ?string
     {
         if ($actor->id === $user->id && $actor->hasPermission('checkin.allowCheckIn') && ! $this->isSuspended($user)) {
             return $this->allow();
@@ -17,7 +17,7 @@ class UserPolicy extends AbstractPolicy
         return $this->deny();
     }
 
-    public function allowSupplementaryCheckIn(User $actor, User $user)
+    public function allowSupplementaryCheckIn(User $actor, User $user): ?string
     {
         if ($actor->id === $user->id && $actor->hasPermission('checkin.allowSupplementaryCheckIn') && ! $this->isSuspended($user)) {
             return $this->allow();

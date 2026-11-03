@@ -6,6 +6,6 @@ export default class CheckinRecord extends Model {
   color = Model.attribute<string>('color');
   type = Model.attribute<number>('type');
   streak = Model.attribute<number>('streak');
-  checkedInAt = Model.attribute<string>('checkedInAt');
+  checkedInAt = Model.attribute('checkedInAt', Model.transformDate);
   user = Model.hasOne<User>('user');
 }

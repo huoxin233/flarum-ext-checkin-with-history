@@ -1,7 +1,5 @@
 import app from 'flarum/forum/app';
 
-declare const FullCalendar: any;
-
 export interface ResourceConfig {
   url?: string;
   sri?: string;

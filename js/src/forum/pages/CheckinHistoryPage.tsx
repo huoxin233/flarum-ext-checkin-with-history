@@ -9,8 +9,6 @@ import type { ApiPayloadPlural } from 'flarum/common/Store';
 import CheckinRecord from '../../common/models/CheckinRecord';
 import { forumTime } from '../utils/checkin';
 
-declare const FullCalendar: any;
-
 export default class CheckinHistoryPage extends UserPage {
   calendar: any = null;
   removed = false;

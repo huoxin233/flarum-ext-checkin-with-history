@@ -19,7 +19,11 @@ export default class CheckinResultModal extends Modal<CheckinResultModalAttrs> {
     return (
       <div className="Modal-body">
         {this.attrs.success ? (
-          checkinMessages().map((message) => <p className="successText">{message}</p>)
+          checkinMessages().map((message, index) => (
+            <p key={index} className="successText">
+              {message}
+            </p>
+          ))
         ) : (
           <p>{app.translator.trans('primexcalibur-checkin-with-history.forum.try-again-later')}</p>
         )}

@@ -26,15 +26,14 @@ export default function extendUserProfile(): void {
 
     items.add(
       'post-checkin-history',
-      LinkButton.component(
-        {
-          href: app.route('user.checkin.history', {
-            username: this.user.slug(),
-          }),
-          icon: 'fas fa-calendar-alt',
-        },
-        app.translator.trans('primexcalibur-checkin-with-history.forum.page.link-name')
-      )
+      <LinkButton
+        href={app.route('user.checkin.history', {
+          username: this.user.slug(),
+        })}
+        icon="fas fa-calendar-alt"
+      >
+        {app.translator.trans('primexcalibur-checkin-with-history.forum.page.link-name')}
+      </LinkButton>
     );
   });
 }

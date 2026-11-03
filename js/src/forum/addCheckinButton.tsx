@@ -30,8 +30,8 @@ async function checkIn(): Promise<void> {
     } else {
       app.alerts.show(
         { type: 'error' },
-        `${app.translator.trans('primexcalibur-checkin-with-history.forum.check-in-failed')} ${app.translator.trans(
-          'primexcalibur-checkin-with-history.forum.try-again-later'
+        `${extractText(app.translator.trans('primexcalibur-checkin-with-history.forum.check-in-failed'))} ${extractText(
+          app.translator.trans('primexcalibur-checkin-with-history.forum.try-again-later')
         )}`
       );
     }
