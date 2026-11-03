@@ -51,15 +51,20 @@ class CheckInService
     {
         $supplementary = $date !== null;
         $supplementCount = 0;
+        $forumTime = $this->stateResolver->currentForumTime();
+        $date = $date ?? $forumTime->toDateString();
 
-        $record = $this->connection->transaction(function () use ($actor, $date, $supplementary, &$supplementCount) {
+        if ($supplementary) {
+            $this->validateSupplementDate($date, $forumTime);
+        }
+
+        if ($this->stateResolver->hasCheckInOn($actor, $date)
+            || (! $supplementary && ! $this->stateResolver->canCheckIn($actor, $forumTime))) {
+            throw $this->error('api.error.already-checked-in', ['date' => $date]);
+        }
+
+        $record = $this->connection->transaction(function () use ($actor, $date, $supplementary, $forumTime, &$supplementCount) {
             $user = User::query()->whereKey($actor->id)->lockForUpdate()->firstOrFail();
-            $forumTime = $this->stateResolver->currentForumTime();
-            $date = $date ?? $forumTime->toDateString();
-
-            if ($supplementary) {
-                $this->validateSupplementDate($date, $forumTime);
-            }
 
             if ($this->stateResolver->hasCheckInOn($user, $date)
                 || (! $supplementary && ! $this->stateResolver->canCheckIn($user, $forumTime))) {
