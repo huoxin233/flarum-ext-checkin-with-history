@@ -58,18 +58,12 @@ class CheckInService
             $this->validateSupplementDate($date, $forumTime);
         }
 
-        if ($this->stateResolver->hasCheckInOn($actor, $date)
-            || (! $supplementary && ! $this->stateResolver->canCheckIn($actor, $forumTime))) {
-            throw $this->error('api.error.already-checked-in', ['date' => $date]);
-        }
+        $this->assertCanCheckIn($actor, $date, $supplementary, $forumTime);
 
         $record = $this->connection->transaction(function () use ($actor, $date, $supplementary, $forumTime, &$supplementCount) {
             $user = User::query()->whereKey($actor->id)->lockForUpdate()->firstOrFail();
 
-            if ($this->stateResolver->hasCheckInOn($user, $date)
-                || (! $supplementary && ! $this->stateResolver->canCheckIn($user, $forumTime))) {
-                throw $this->error('api.error.already-checked-in', ['date' => $date]);
-            }
+            $this->assertCanCheckIn($user, $date, $supplementary, $forumTime);
 
             if ($supplementary) {
                 $supplementCount = $this->validateSupplementSequence($user, $date, $forumTime) + 1;
@@ -94,6 +88,14 @@ class CheckInService
         $this->events->dispatch(new CheckedIn($record->user, $record, $supplementCount));
 
         return $record;
+    }
+
+    private function assertCanCheckIn(User $user, string $date, bool $supplementary, CarbonImmutable $forumTime): void
+    {
+        if ($this->stateResolver->hasCheckInOn($user, $date)
+            || (! $supplementary && ! $this->stateResolver->canCheckIn($user, $forumTime))) {
+            throw $this->error('api.error.already-checked-in', ['date' => $date]);
+        }
     }
 
     private function validateSupplementDate(string $date, CarbonImmutable $forumTime): void
@@ -230,8 +232,10 @@ class CheckInService
 
     private function error(string $key, array $parameters = []): ValidationException
     {
+        $translationKey = 'primexcalibur-checkin-with-history.'.$key;
+
         return new ValidationException([
-            'message' => $this->translator->trans('primexcalibur-checkin-with-history.'.$key, $parameters),
+            'message' => $this->translator->trans($translationKey, $parameters),
         ]);
     }
 }
