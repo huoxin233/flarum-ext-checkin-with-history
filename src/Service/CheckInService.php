@@ -50,16 +50,12 @@ class CheckInService
     private function perform(User $actor, ?string $date = null): CheckinRecord
     {
         $supplementary = $date !== null;
-        $supplementCount = 0;
         $forumTime = $this->stateResolver->currentForumTime();
         $date = $date ?? $forumTime->toDateString();
 
-        if ($supplementary) {
-            $this->validateSupplementDate($date, $forumTime);
-        }
+        $this->preValidate($actor, $date, $supplementary, $forumTime);
 
-        $this->assertCanCheckIn($actor, $date, $supplementary, $forumTime);
-
+        $supplementCount = 0;
         $record = $this->connection->transaction(function () use ($actor, $date, $supplementary, $forumTime, &$supplementCount) {
             $user = User::query()->whereKey($actor->id)->lockForUpdate()->firstOrFail();
 
@@ -88,6 +84,20 @@ class CheckInService
         $this->events->dispatch(new CheckedIn($record->user, $record, $supplementCount));
 
         return $record;
+    }
+
+    private function preValidate(User $actor, string $date, bool $supplementary, CarbonImmutable $forumTime): void
+    {
+        if ($supplementary) {
+            $this->validateSupplementDate($date, $forumTime);
+            $this->validateSupplementSequence($actor, $date, $forumTime);
+
+            if ($this->cardManager->getAvailableCards($actor) <= 0) {
+                throw $this->error('api.error.insufficient-checkin-card');
+            }
+        }
+
+        $this->assertCanCheckIn($actor, $date, $supplementary, $forumTime);
     }
 
     private function assertCanCheckIn(User $user, string $date, bool $supplementary, CarbonImmutable $forumTime): void
@@ -202,10 +212,29 @@ class CheckInService
         $record->checked_in_at = CarbonImmutable::now('UTC');
         $record->save();
 
-        $endDate = $date;
-        $nextDate = CarbonImmutable::parse($date, 'UTC')->addDay();
+        [$continuous, $endDate] = $this->rechainSubsequentStreaks($user->id, $date, $continuous);
+
+        if ($lastDate === null || $endDate >= $lastDate) {
+            $user->total_continuous_checkin_count = $continuous;
+            if ($lastDate === null || $endDate > $lastDate) {
+                $user->last_checkin_time = $endDate.' '.$forumTime->format('H:i:s');
+            }
+        }
+
+        return $record;
+    }
+
+    /**
+     * @return array{0: int, 1: string} [finalContinuousStreak, latestConsecutiveDate]
+     */
+    private function rechainSubsequentStreaks(int $userId, string $startDate, int $initialStreak): array
+    {
+        $continuous = $initialStreak;
+        $endDate = $startDate;
+        $nextDate = CarbonImmutable::parse($startDate, 'UTC')->addDay();
+
         $subsequent = CheckinRecord::query()
-            ->where('user_id', $user->id)
+            ->where('user_id', $userId)
             ->where('checkin_date', '>=', $nextDate->toDateString())
             ->orderBy('checkin_date', 'asc')
             ->get();
@@ -220,14 +249,7 @@ class CheckInService
             $nextDate = $nextDate->addDay();
         }
 
-        if ($lastDate === null || $endDate >= $lastDate) {
-            $user->total_continuous_checkin_count = $continuous;
-            if ($lastDate === null || $endDate > $lastDate) {
-                $user->last_checkin_time = $endDate.' '.$forumTime->format('H:i:s');
-            }
-        }
-
-        return $record;
+        return [$continuous, $endDate];
     }
 
     private function error(string $key, array $parameters = []): ValidationException
