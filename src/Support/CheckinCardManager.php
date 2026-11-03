@@ -9,17 +9,10 @@ use Illuminate\Database\ConnectionInterface;
 
 class CheckinCardManager
 {
-    private static ?bool $storeTableExists = null;
-
     public function __construct(
         private ExtensionManager $extensions,
         private ConnectionInterface $connection
     ) {
-    }
-
-    public static function resetTableCheck(): void
-    {
-        self::$storeTableExists = null;
     }
 
     public function isStoreEnabled(): bool
@@ -29,11 +22,7 @@ class CheckinCardManager
 
     public function hasStoreCartTable(): bool
     {
-        if (self::$storeTableExists === null) {
-            self::$storeTableExists = $this->connection->getSchemaBuilder()->hasTable('store_cart');
-        }
-
-        return self::$storeTableExists;
+        return $this->connection->getSchemaBuilder()->hasTable('store_cart');
     }
 
     /**
