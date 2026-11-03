@@ -61,9 +61,8 @@ class CheckInService
                 $this->validateSupplementDate($date, $forumTime);
             }
 
-            if ($supplementary
-                ? $this->stateResolver->hasCheckInOn($user, $date)
-                : ! $this->stateResolver->canCheckIn($user, $forumTime)) {
+            if ($this->stateResolver->hasCheckInOn($user, $date)
+                || (! $supplementary && ! $this->stateResolver->canCheckIn($user, $forumTime))) {
                 throw $this->error('api.error.already-checked-in', ['date' => $date]);
             }
 
